@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>散歩記録アプリ</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f0f9ff; }
+        .container { background: white; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        input, textarea { width: 100%; margin-bottom: 10px; padding: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #4caf50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .log { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🐾 散歩記録</h2>
+        <input type="text" id="place" placeholder="どこを歩いた？">
+        <textarea id="memo" placeholder="感想など"></textarea>
+        <button onclick="addLog()">記録する</button>
+        <div id="list"></div>
+    </div>
+
+    <script>
+        function addLog() {
+            const p = document.getElementById('place').value;
+            const m = document.getElementById('memo').value;
+            if(!p) return alert("場所を入れてね");
+            const div = document.createElement('div');
+            div.className = 'log';
+            div.innerHTML = `<strong>${new Date().toLocaleString()}</strong><br>📍 ${p}<p>${m}</p>`;
+            document.getElementById('list').prepend(div);
+            document.getElementById('place').value = "";
+            document.getElementById('memo').value = "";
+        }
+    </script>
+</body>
+</html>
