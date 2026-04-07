@@ -39,6 +39,10 @@
         <h2>🐾 散歩記録</h2>
         <input type="text" id="place" placeholder="どこを歩いた？">
         <textarea id="memo" placeholder="感想など"></textarea>
+        <div style="margin-top: 15px; margin-bottom: 15px;">
+            <label for="happiness" style="display: block; margin-bottom: 5px;">☺ 今日の幸福度:<span id="happyNum">50</span>%</label>
+            <input type="range" id="happiness" min="1" max="100" value="50" oninput="updateHappyNum(this.value)">
+        </div>
         <button onclick="addLog()">記録する</button>
         <div id="list"></div>
     </div>
