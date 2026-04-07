@@ -21,7 +21,8 @@
     </div>
 
     <script>
-    const savedPlace = localStorage.getItem("Last Place");
+
+    const savedPlace = localStorage.getItem("LastPlace");
     if (savedPlace) {
         alert("散歩を継続していて偉いです! 前回は [" + savedPlace + "] を歩きました！脳が活性化しています！");
     }
@@ -36,7 +37,7 @@
             const m = document.getElementById('memo').value;
             if(!p) return alert("場所を入れてね");
             localStorage.setItem("LastPlace" , p);
-            
+
 
             const div = document.createElement('div');
             div.className = 'log';
