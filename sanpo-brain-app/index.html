@@ -35,6 +35,8 @@
             const p = document.getElementById('place').value;
             const m = document.getElementById('memo').value;
             if(!p) return alert("場所を入れてね");
+            localStorage.setItem("LastPlace" , p);
+            
 
             const div = document.createElement('div');
             div.className = 'log';
