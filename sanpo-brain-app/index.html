@@ -2,8 +2,8 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>散歩脳 - グラフ連動版</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>散歩脳 - 完全版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -23,63 +23,66 @@
             background-color: var(--primary-bg);
             color: var(--text-color);
             overflow-x: hidden;
-            position: relative;
         }
 
         .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-gap: 20px;
-            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 10px;
             max-width: 1200px;
             margin: 0 auto;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                padding: 20px;
+            }
         }
 
         .panel {
             background-color: var(--white);
             border-radius: 12px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            position: relative; 
-            z-index: 10;
-        }
-
-        .left-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            height: fit-content;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 15px;
         }
-        label { font-weight: bold; }
+
+        label { font-weight: bold; font-size: 14px; }
+
         input[type="text"], textarea {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid var(--border-color);
-            border-radius: 6px;
+            border-radius: 8px;
             box-sizing: border-box;
+            font-size: 16px;
         }
-        textarea { resize: vertical; height: 80px; }
 
         .tag-group {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
         }
+
         .tag {
             border: 1px solid var(--border-color);
-            padding: 6px 14px;
+            padding: 8px 12px;
             border-radius: 20px;
             cursor: pointer;
-            font-size: 14px;
-            transition: 0.2s;
+            font-size: 13px;
             background: white;
         }
+
         .tag.active {
             color: var(--white);
             background-color: #5a7fee;
@@ -90,23 +93,23 @@
             background-color: #4CAF50;
             color: var(--white);
             border: none;
-            border-radius: 6px;
-            padding: 12px 24px;
+            border-radius: 8px;
+            padding: 15px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            align-self: flex-end;
+            width: 100%;
         }
 
-        .right-panel {
-            overflow-y: auto;
-            max-height: 85vh;
-        }
+        .chart-container { height: 180px; position: relative; }
+
         .archive-list {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
+            margin-top: 10px;
         }
+
         .archive-item {
             border-radius: 10px;
             overflow: hidden;
@@ -114,190 +117,197 @@
             background-color: white;
             animation: slideIn 0.3s ease-out;
         }
+
         @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-20px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .card-header {
-            padding: 10px 15px;
+            padding: 8px 12px;
             color: white;
             font-weight: bold;
             display: flex;
             justify-content: space-between;
+            font-size: 14px;
         }
-        .card-body { padding: 15px; }
-        .item-time { color: #888; font-size: 12px; margin-bottom: 5px; }
+
+        .card-body { padding: 12px; }
+        .item-time { color: #888; font-size: 11px; margin-bottom: 4px; }
+        .memo-content { font-size: 14px; white-space: pre-wrap; }
 
         .archive-item[data-style="joy"] .card-header { background-color: var(--tag-joy); color: #333; }
         .archive-item[data-style="relax"] .card-header { background-color: var(--tag-relax); }
         .archive-item[data-style="concentration"] .card-header { background-color: var(--tag-concentration); }
         .archive-item[data-style="fatigue"] .card-header { background-color: var(--tag-fatigue); }
 
-        .particle {
-            position: fixed;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 100;
-            filter: blur(2px);
-            transition: opacity 0.8s, transform 1.5s ease-out;
-        }
+        .particle { position: fixed; border-radius: 50%; pointer-events: none; z-index: 100; transition: all 1.2s; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="left-panel">
-            <div class="panel">
-                <div style="font-size: 20px; font-weight: bold; border-bottom: 2px solid #ddd; padding-bottom: 10px;">🐾 散歩脳</div>
-
-                <div class="form-group" style="margin-top: 15px;">
-                    <label>どこを歩いた？</label>
-                    <input type="text" id="walkLocation" value="大崎">
-                </div>
-
-                <div class="form-group">
-                    <label>気分</label>
-                    <div class="tag-group">
-                        <span class="tag active" data-style="joy">#楽しい</span>
-                        <span class="tag" data-style="relax">#リラックス</span>
-                        <span class="tag" data-style="concentration">#悩み中・・・</span>
-                        <span class="tag" data-style="fatigue">#わくわく！</span>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>思考内容</label>
-                    <textarea id="memoText">いい気分だ！</textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>幸福度</label>
-                    <input type="range" id="happinessSlider" min="0" max="100" value="80">
-                    <span id="happinessValue">80%</span>
-                </div>
-
-                <button class="record-btn" id="recordBtn">記録する</button>
+        <div class="panel">
+            <div style="font-size: 18px; font-weight: bold; border-bottom: 2px solid #ddd; padding-bottom: 8px; margin-bottom: 15px;">🐾 散歩脳</div>
+            <div class="form-group">
+                <label>📍 場所</label>
+                <input type="text" id="walkLocation" value="品川">
             </div>
-
-            <div class="panel">
-                <div style="font-weight: bold; margin-bottom: 10px;">🧠 メンタル推移（リアルタイム連動）</div>
-                <div style="height: 150px;"><canvas id="mentalChart"></canvas></div>
+            <div class="form-group">
+                <label>🏷 気分</label>
+                <div class="tag-group" id="tagGroup">
+                    <span class="tag active" data-style="joy">#楽しい</span>
+                    <span class="tag" data-style="relax">#リラックス</span>
+                    <span class="tag" data-style="concentration">#悩み中・・・</span>
+                    <span class="tag" data-style="fatigue">#わくわく！</span>
+                </div>
             </div>
+            <div class="form-group">
+                <label>📝 メモ</label>
+                <textarea id="memoText" placeholder="何を感じた？"></textarea>
+            </div>
+            <div class="form-group">
+                <label>😊 幸福度: <span id="happinessValue">80%</span></label>
+                <input type="range" id="happinessSlider" min="0" max="100" value="80">
+            </div>
+            <button class="record-btn" id="recordBtn">記録する</button>
+            <button id="clearBtn" style="margin-top:20px; background:none; border:none; color:#ccc; font-size:10px; cursor:pointer;">データを全消去する</button>
         </div>
 
-        <div class="right-panel">
-            <div class="panel">
-                <div style="font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">📦 履歴アーカイブ</div>
-                <div class="archive-list" id="archiveList"></div>
-            </div>
+        <div class="panel">
+            <div style="font-weight: bold; margin-bottom: 10px; font-size: 14px;">🧠 メンタル推移</div>
+            <div class="chart-container"><canvas id="mentalChart"></canvas></div>
+        </div>
+
+        <div class="panel">
+            <div style="font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 5px; font-size: 14px;">📦 履歴アーカイブ</div>
+            <div class="archive-list" id="archiveList"></div>
         </div>
     </div>
 
     <script>
-        // --- タグ切り替え ---
-        const tags = document.querySelectorAll('.tag');
-        tags.forEach(t => t.addEventListener('click', () => {
-            tags.forEach(tag => tag.classList.remove('active'));
-            t.classList.add('active');
-        }));
+        // 1. グローバル変数の初期化
+        let records = JSON.parse(localStorage.getItem('sampo_records')) || [];
+        let mentalChart;
 
-        // --- スライダー連動 ---
-        const slider = document.getElementById('happinessSlider');
-        slider.addEventListener('input', () => {
-            document.getElementById('happinessValue').textContent = slider.value + '%';
-        });
-
-        // --- グラフの初期化 ---
-        const ctx = document.getElementById('mentalChart').getContext('2d');
-        const mentalChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: Array.from({length: 20}, (_, i) => i + 1), // 20回分のデータ枠
-                datasets: [{
-                    label: '幸福度',
-                    data: Array.from({length: 20}, () => 50), // 初期値は全部50
-                    borderColor: '#4169E1',
-                    backgroundColor: 'rgba(65, 105, 225, 0.1)',
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 3,
-                    pointBackgroundColor: '#4169E1'
-                }]
-            },
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: false, 
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { min: 0, max: 100 } // 0~100で固定
-                }
-            }
-        });
-
-        // --- ぽわぽわ演出 ---
-        const createParticle = () => {
+        // 2. 演出用関数の定義 (先に定義)
+        function createParticle() {
             const p = document.createElement('div');
-            p.classList.add('particle');
+            p.className = 'particle';
             p.style.backgroundColor = ['#FFD700', '#3CB371', '#4169E1', '#9370DB'][Math.floor(Math.random()*4)];
-            const size = Math.random() * 15 + 5 + 'px';
+            const size = Math.random() * 10 + 5 + 'px';
             p.style.width = size; p.style.height = size;
             p.style.left = Math.random() * 100 + 'vw';
             p.style.top = Math.random() * 100 + 'vh';
-            p.style.opacity = '0.7';
+            p.style.opacity = '0.6';
             document.body.appendChild(p);
             setTimeout(() => {
-                p.style.transform = `translate(${(Math.random()-0.5)*200}px, ${(Math.random()-0.5)*200}px)`;
+                p.style.transform = `translate(${(Math.random()-0.5)*150}px, ${(Math.random()-0.5)*150}px) scale(0)`;
                 p.style.opacity = '0';
             }, 50);
-            setTimeout(() => p.remove(), 1500);
-        };
+            setTimeout(() => p.remove(), 1200);
+        }
 
-        // --- 記録ボタン（アーカイブ追加 ＋ グラフ更新） ---
-        document.getElementById('recordBtn').addEventListener('click', () => {
-            const location = document.getElementById('walkLocation').value;
-            const memo = document.getElementById('memoText').value;
-            const happiness = parseInt(document.getElementById('happinessSlider').value); // 数値として取得
-            
-            const activeTag = document.querySelector('.tag.active');
-            const tagName = activeTag.textContent;
-            const styleType = activeTag.getAttribute('data-style');
-
-            const now = new Date();
-            const timeString = `${now.getMonth() + 1}/${now.getDate()} ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
-
-            // 1. アーカイブへの追加
+        // 3. 履歴表示関数の定義
+        function displayRecords() {
             const list = document.getElementById('archiveList');
-            const item = document.createElement('div');
-            item.className = 'archive-item';
-            item.setAttribute('data-style', styleType);
-            item.innerHTML = `
-                <div class="card-header">
-                    <div>📍 ${location}</div>
-                    <div>${happiness}%</div>
-                </div>
-                <div class="card-body">
-                    <div class="item-time">🕒 ${timeString} 【${tagName}】</div>
-                    <div class="memo-content">${memo}</div>
-                </div>
-            `;
-            list.prepend(item);
+            if (!list) return;
+            list.innerHTML = '';
+            records.slice().reverse().forEach(data => {
+                const item = document.createElement('div');
+                item.className = 'archive-item';
+                item.setAttribute('data-style', data.style);
+                item.innerHTML = `
+                    <div class="card-header"><div>📍 ${data.location}</div><div>${data.happiness}%</div></div>
+                    <div class="card-body">
+                        <div class="item-time">🕒 ${data.time} ${data.tagName}</div>
+                        <div class="memo-content">${data.memo}</div>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
 
-            // 2. グラフの更新
-            // データを末尾に追加
-            mentalChart.data.datasets[0].data.push(happiness);
-            // 古いデータを1つ削除して、常に一定の件数にする
-            mentalChart.data.datasets[0].data.shift();
-            // グラフを再描画
-            mentalChart.update();
+        // 4. メイン処理 (DOMが読み込まれたら実行)
+        window.onload = function() {
+            // --- グラフ初期化 ---
+            const ctx = document.getElementById('mentalChart').getContext('2d');
+            mentalChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 10}, (_, i) => i + 1),
+                    datasets: [{
+                        data: records.length >= 10 ? records.slice(-10).map(r => r.happiness) : Array(10).fill(50),
+                        borderColor: '#4169E1',
+                        backgroundColor: 'rgba(65, 105, 225, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    scales: { y: { min: 0, max: 100 } },
+                    plugins: { legend: { display: false } }
+                }
+            });
 
-            // 3. 演出
-            for(let i=0; i<15; i++) setTimeout(createParticle, i * 30);
-            
-            const btn = document.getElementById('recordBtn');
-            btn.textContent = '記録完了！';
-            setTimeout(() => { btn.textContent = '記録する'; }, 1500);
-        });
+            displayRecords();
+
+            // --- イベントリスナー設定 ---
+            // タグ
+            const tags = document.querySelectorAll('.tag');
+            tags.forEach(t => t.addEventListener('click', () => {
+                tags.forEach(tag => tag.classList.remove('active'));
+                t.classList.add('active');
+            }));
+
+            // スライダー
+            const slider = document.getElementById('happinessSlider');
+            slider.addEventListener('input', () => {
+                document.getElementById('happinessValue').textContent = slider.value + '%';
+            });
+
+            // 記録ボタン
+            document.getElementById('recordBtn').addEventListener('click', () => {
+                const activeTag = document.querySelector('.tag.active');
+                const now = new Date();
+                const timeString = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')} (${now.getMonth()+1}/${now.getDate()})`;
+
+                const newRecord = {
+                    location: document.getElementById('walkLocation').value || 'どこか',
+                    memo: document.getElementById('memoText').value || '（メモなし）',
+                    happiness: parseInt(slider.value),
+                    tagName: activeTag.textContent,
+                    style: activeTag.getAttribute('data-style'),
+                    time: timeString
+                };
+
+                records.push(newRecord);
+                localStorage.setItem('sampo_records', JSON.stringify(records));
+
+                displayRecords();
+
+                mentalChart.data.datasets[0].data.push(newRecord.happiness);
+                if(mentalChart.data.datasets[0].data.length > 10) mentalChart.data.datasets[0].data.shift();
+                mentalChart.update();
+
+                for(let i=0; i<10; i++) setTimeout(createParticle, i * 50);
+                
+                const btn = document.getElementById('recordBtn');
+                btn.textContent = '保存完了！';
+                setTimeout(() => { btn.textContent = '記録する'; }, 1500);
+                document.getElementById('memoText').value = '';
+            });
+
+            // 全消去
+            document.getElementById('clearBtn').addEventListener('click', () => {
+                if(confirm('記録をすべて消しますか？')) {
+                    localStorage.removeItem('sampo_records');
+                    location.reload();
+                }
+            });
+        };
     </script>
 </body>
 </html>
