@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>散歩脳 - 記録重視版</title>
+    <title>散歩脳 - バグ修正版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -30,6 +30,12 @@
             display: grid;
             grid-template-columns: 400px 1fr;
             gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
         }
 
         .panel {
@@ -86,6 +92,7 @@
             border-radius: 15px;
             cursor: pointer;
             font-size: 12px;
+            background: #fff;
         }
 
         .tag.active {
@@ -144,7 +151,6 @@
             font-size: 16px;
         }
 
-        /* 気分別カラー */
         [data-style="joy"] .item-head {
             background-color: var(--tag-joy);
             color: #333;
@@ -165,7 +171,6 @@
 </head>
 
 <body>
-
     <div class="container">
         <div class="panel">
             <h2>🐾 散歩の記録</h2>
@@ -226,11 +231,10 @@
     </div>
 
     <script>
-        // 1. 初期データ読み込み
         let records = JSON.parse(localStorage.getItem('sampo_v3')) || [];
         let mentalChart;
 
-        // 2. グラフ初期化
+        // グラフ初期化
         function initChart() {
             const ctx = document.getElementById('mentalChart').getContext('2d');
             mentalChart = new Chart(ctx, {
@@ -239,35 +243,4 @@
                     labels: records.slice(-10).map((_, i) => i + 1),
                     datasets: [{
                         data: records.slice(-10).map(r => r.happy),
-                        borderColor: '#4169E1',
-                        fill: false,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { min: 0, max: 100 } },
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
-
-        // 3. 履歴の表示
-        function renderList() {
-            const listDiv = document.getElementById('archiveList');
-            listDiv.innerHTML = '';
-
-            // 新しい順に表示
-            records.slice().reverse().forEach((data, index) => {
-                const actualIndex = records.length - 1 - index;
-                const div = document.createElement('div');
-                div.className = 'archive-item';
-                div.setAttribute('data-style', data.style);
-                div.innerHTML = `
-                <div class="item-head">
-                    <span>📍 ${data.loc}</span>
-                    <span>${data.happy}% <span class="delete-btn" onclick="deleteRecord(${actualIndex})">×</span></span>
-                </div>
-                <div class="item-body">
-                    <div style="font
+                        borderColor: '#4
