@@ -3,13 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>散歩脳 - Premium Edition</title>
+    <title>散歩脳 - Adventure Edition</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            /* グラデーション背景用の色 */
             --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            --panel-bg: rgba(255, 255, 255, 0.9);
+            --panel-bg: rgba(255, 255, 255, 0.92);
             --primary-color: #5a7fee;
             --accent-color: #4CAF50;
             --text-main: #2c3e50;
@@ -20,7 +19,7 @@
         }
 
         body {
-            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
             background: var(--bg-gradient);
             background-attachment: fixed;
             color: var(--text-main);
@@ -30,196 +29,129 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
             display: grid;
             grid-template-columns: 420px 1fr;
             gap: 25px;
         }
 
-        @media (max-width: 850px) {
+        @media (max-width: 900px) {
             .container { grid-template-columns: 1fr; }
+        }
+
+        /* 称号・ミッションエリア */
+        .status-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .mission-box {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+            border-left: 4px solid #ffd700;
         }
 
         .panel {
             background: var(--panel-bg);
-            backdrop-filter: blur(10px); /* 背景をぼかす */
+            backdrop-filter: blur(10px);
             padding: 25px;
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.18);
         }
 
-        h2 { 
-            font-size: 1.3rem; 
-            margin-top: 0;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        h2 { font-size: 1.3rem; margin-top: 0; display: flex; align-items: center; gap: 10px; }
 
+        /* 入力UI */
         .form-group { margin-bottom: 18px; }
-        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; color: #555; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 15px; box-sizing: border-box; }
         
-        input, textarea { 
-            width: 100%; 
-            padding: 12px; 
-            box-sizing: border-box; 
-            border: 1px solid #ddd; 
-            border-radius: 10px;
-            font-size: 15px;
-            transition: border-color 0.3s;
-        }
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        .form-row { display: flex; gap: 12px; }
-        .form-row>div { flex: 1; }
-
         .tag-group { display: flex; flex-wrap: wrap; gap: 8px; }
-        .tag {
-            border: 1px solid #ddd;
-            padding: 6px 14px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 13px;
-            background: #fff;
-            transition: all 0.2s;
-        }
-        .tag:hover { background: #f0f0f0; }
-        .tag.active {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-            box-shadow: 0 4px 10px rgba(90, 127, 238, 0.3);
-        }
+        .tag { border: 1px solid #ddd; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 13px; background: #fff; }
+        .tag.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
 
         .record-btn {
-            width: 100%;
-            padding: 15px;
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.2s;
-            margin-top: 10px;
+            width: 100%; padding: 15px; background: var(--accent-color); color: white; border: none;
+            border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s;
         }
-        .record-btn:hover { box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3); }
         .record-btn:active { transform: scale(0.98); }
 
-        .chart-area { height: 220px; margin-bottom: 10px; }
+        .chart-area { height: 220px; }
 
-        /* 履歴カードのデザイン */
-        .archive-item { 
-            background: white;
-            border-radius: 12px; 
-            margin-bottom: 15px; 
-            overflow: hidden; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-        }
-        .archive-item:hover { transform: translateY(-2px); }
-
-        .item-head { 
-            padding: 10px 15px; 
-            color: white; 
-            display: flex; 
-            justify-content: space-between; 
-            font-weight: bold; 
-            font-size: 14px;
-        }
+        /* 履歴アイテム */
+        .archive-item { background: white; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
+        .item-head { padding: 10px 15px; color: white; display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
         .item-body { padding: 15px; }
-        .stats-row { display: flex; gap: 15px; margin-bottom: 10px; }
-        .stat-badge {
-            background: #f8f9fa;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            color: #666;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .delete-btn { 
-            cursor: pointer; 
-            background: rgba(0,0,0,0.1);
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: background 0.2s;
-        }
-        .delete-btn:hover { background: rgba(0,0,0,0.2); }
+        .stats-badge { background: #f8f9fa; padding: 4px 10px; border-radius: 6px; font-size: 12px; color: #666; margin-right: 5px; }
 
         [data-style="joy"] .item-head { background-color: var(--tag-joy); color: #333; }
         [data-style="relax"] .item-head { background-color: var(--tag-relax); }
         [data-style="concentration"] .item-head { background-color: var(--tag-concentration); }
         [data-style="fatigue"] .item-head { background-color: var(--tag-fatigue); }
-
-        #clearDataBtn {
-            display: block;
-            margin: 30px auto 0;
-            background: none;
-            border: none;
-            color: #999;
-            cursor: pointer;
-            font-size: 12px;
-            text-decoration: underline;
-        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <div class="panel">
-            <h2>🐾 散歩の記録</h2>
-            <div class="form-group">
-                <label>📍 場所</label>
-                <input type="text" id="walkLocation" value="品川">
+        <div>
+            <div class="status-card">
+                <div style="font-size: 0.9rem; opacity: 0.8;">現在の称号</div>
+                <div id="playerTitle" style="font-size: 1.8rem; font-weight: bold; margin: 5px 0;">散歩ビギナー 🐣</div>
+                <div id="playerStats" style="font-size: 0.8rem; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px;">
+                    記録回数: 0回 | 合計歩数: 0歩
+                </div>
+                
+                <div class="mission-box">
+                    <div style="font-weight: bold; font-size: 0.9rem; color: #ffd700; margin-bottom: 5px;">📍 本日のミッション</div>
+                    <div id="dailyMission" style="font-size: 1rem; margin-bottom: 10px;">知らない角を1回曲がってみよう</div>
+                    <div id="dailyAdvice" style="font-size: 0.8rem; font-style: italic; opacity: 0.9; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px;">
+                        アドバイス: 視線を上げると新しい発見がありますよ。
+                    </div>
+                </div>
             </div>
 
-            <div class="form-row">
+            <div class="panel">
+                <h2>🐾 散歩の記録</h2>
                 <div class="form-group">
-                    <label>👣 歩数</label>
-                    <input type="number" id="walkSteps" placeholder="歩">
+                    <label>📍 場所</label>
+                    <input type="text" id="walkLocation" value="品川">
+                </div>
+                <div style="display: flex; gap:10px; margin-bottom: 15px;">
+                    <div style="flex:1">
+                        <label>👣 歩数</label>
+                        <input type="number" id="walkSteps" placeholder="歩">
+                    </div>
+                    <div style="flex:1">
+                        <label>⏱ 時間</label>
+                        <input type="number" id="walkMinutes" placeholder="分">
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>⏱ 時間</label>
-                    <input type="number" id="walkMinutes" placeholder="分">
+                    <label>🏷 気分</label>
+                    <div class="tag-group" id="tagGroup">
+                        <span class="tag active" data-style="joy">#楽しい</span>
+                        <span class="tag" data-style="relax">#リラックス</span>
+                        <span class="tag" data-style="concentration">#悩み中</span>
+                        <span class="tag" data-style="fatigue">#わくわく</span>
+                    </div>
                 </div>
-            </div>
-
-            <div class="form-group">
-                <label>🏷 気分</label>
-                <div class="tag-group" id="tagGroup">
-                    <span class="tag active" data-style="joy">#楽しい</span>
-                    <span class="tag" data-style="relax">#リラックス</span>
-                    <span class="tag" data-style="concentration">#悩み中</span>
-                    <span class="tag" data-style="fatigue">#わくわく</span>
+                <div class="form-group">
+                    <label>📝 メモ</label>
+                    <textarea id="memoText" rows="2" placeholder="ミッションの結果も書こう！"></textarea>
                 </div>
+                <div class="form-group">
+                    <label>😊 幸福度: <span id="happyValDisplay" style="color:var(--primary-color);">80</span>%</label>
+                    <input type="range" id="happySlider" min="0" max="100" value="80">
+                </div>
+                <button class="record-btn" onclick="addRecord()">冒険を記録する</button>
             </div>
-
-            <div class="form-group">
-                <label>📝 メモ</label>
-                <textarea id="memoText" rows="3" placeholder="どんな景色が見えた？"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label>😊 幸福度: <span id="happyValDisplay" style="color:var(--primary-color); font-size:1.2rem;">80</span>%</label>
-                <input type="range" id="happySlider" min="0" max="100" value="80">
-            </div>
-
-            <button class="record-btn" onclick="addRecord()">記録を保存する</button>
-            <button id="clearDataBtn" onclick="clearData()">データを全消去</button>
         </div>
 
         <div>
@@ -229,7 +161,6 @@
                     <canvas id="mentalChart"></canvas>
                 </div>
             </div>
-
             <div class="panel">
                 <h2>📦 履歴アーカイブ</h2>
                 <div id="archiveList"></div>
@@ -241,6 +172,48 @@
         let records = JSON.parse(localStorage.getItem('sampo_v3')) || [];
         let mentalChart;
 
+        // ミッションとアドバイスのリスト
+        const missions = [
+            "赤い花を探してメモに書こう 🌹",
+            "知らない角を1回曲がってみよう ↪️",
+            "空の写真を撮るつもりで眺めよう ☁️",
+            "すれ違う人の靴の色を観察しよう 👟",
+            "深呼吸を3回して、空気の味を感じよう 🍃",
+            "懐かしい匂いを探してみよう 👃",
+            "一番きれいだと思った建物をメモしよう 🏛",
+            "鳥の声が聞こえるか耳を澄まそう 🐦"
+        ];
+        const advices = [
+            "視線を上げると、脳がポジティブになりやすいですよ。",
+            "一定のリズムで歩くと、セロトニン（幸せホルモン）が出ます。",
+            "5分歩くだけでも、創造性は60%向上すると言われています。",
+            "散歩中に悩むのはOK。でも、風景を見るのも忘れないで。",
+            "スマホをポケットにしまう。それが最高の散歩のコツです。"
+        ];
+
+        // 称号判定
+        function updateStatus() {
+            const count = records.length;
+            const totalSteps = records.reduce((sum, r) => sum + (parseInt(r.steps) || 0), 0);
+            let title = "散歩ビギナー 🐣";
+            
+            if (count >= 50) title = "動く哲学者 🎓";
+            else if (count >= 30) title = "散歩の鉄人 🦾";
+            else if (count >= 15) title = "風の旅人 🌪";
+            else if (count >= 5) title = "散歩愛好家 🏃";
+
+            document.getElementById('playerTitle').innerText = title;
+            document.getElementById('playerStats').innerText = `記録回数: ${count}回 | 合計歩数: ${totalSteps.toLocaleString()}歩`;
+        }
+
+        // ミッション更新
+        function setDailyMission() {
+            const m = missions[Math.floor(Math.random() * missions.length)];
+            const a = advices[Math.floor(Math.random() * advices.length)];
+            document.getElementById('dailyMission').innerText = m;
+            document.getElementById('dailyAdvice').innerText = `アドバイス: ${a}`;
+        }
+
         function initChart() {
             const ctx = document.getElementById('mentalChart').getContext('2d');
             mentalChart = new Chart(ctx, {
@@ -251,34 +224,16 @@
                         data: records.slice(-10).map(r => r.happy),
                         borderColor: '#5a7fee',
                         backgroundColor: 'rgba(90, 127, 238, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#5a7fee'
+                        fill: true, tension: 0.4
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { 
-                        y: { min: 0, max: 100, grid: { color: '#eee' } },
-                        x: { grid: { display: false } }
-                    },
-                    plugins: { legend: { display: false } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
-        }
-
-        function updateChart() {
-            mentalChart.data.labels = records.slice(-10).map((_, i) => i + 1);
-            mentalChart.data.datasets[0].data = records.slice(-10).map(r => r.happy);
-            mentalChart.update();
         }
 
         function renderList() {
             const listDiv = document.getElementById('archiveList');
             listDiv.innerHTML = '';
-            
             records.slice().reverse().forEach((data, index) => {
                 const actualIndex = records.length - 1 - index;
                 const div = document.createElement('div');
@@ -287,19 +242,16 @@
                 div.innerHTML = `
                 <div class="item-head">
                     <span>📍 ${data.loc}</span>
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <span>${data.happy}%</span>
-                        <span class="delete-btn" onclick="deleteRecord(${actualIndex})">×</span>
-                    </div>
+                    <span>${data.happy}% <span onclick="deleteRecord(${actualIndex})" style="cursor:pointer;opacity:0.6">×</span></span>
                 </div>
                 <div class="item-body">
                     <div style="font-size:11px; color:#999; margin-bottom:8px;">📅 ${data.time}</div>
-                    <div class="stats-row">
-                        <div class="stat-badge">👣 ${data.steps || 0}歩</div>
-                        <div class="stat-badge">⏱ ${data.mins || 0}分</div>
-                        <div class="stat-badge">🏷 ${data.tagName}</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px;">
+                        <span class="stats-badge">👣 ${data.steps || 0}歩</span>
+                        <span class="stats-badge">⏱ ${data.mins || 0}分</span>
+                        <span class="stats-badge">🏷 ${data.tagName}</span>
                     </div>
-                    <div style="margin-top:10px; line-height:1.5;">${data.memo}</div>
+                    <div style="line-height:1.5; font-size:14px;">${data.memo}</div>
                 </div>`;
                 listDiv.appendChild(div);
             });
@@ -308,16 +260,16 @@
         function addRecord() {
             const activeTag = document.querySelector('.tag.active');
             const now = new Date();
-            const timeStr = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()} ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+            const timeStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}`;
 
             const newEntry = {
-                loc: document.getElementById('walkLocation').value || '不明',
+                loc: document.getElementById('walkLocation').value,
                 steps: document.getElementById('walkSteps').value,
                 mins: document.getElementById('walkMinutes').value,
                 happy: parseInt(document.getElementById('happySlider').value),
                 tagName: activeTag.innerText,
                 style: activeTag.getAttribute('data-style'),
-                memo: document.getElementById('memoText').value || '（なし）',
+                memo: document.getElementById('memoText').value || '（ミッション達成！）',
                 time: timeStr
             };
 
@@ -325,48 +277,44 @@
             localStorage.setItem('sampo_v3', JSON.stringify(records));
             
             renderList();
-            updateChart();
-            
-            // リセット
+            updateStatus();
+            mentalChart.data.labels = records.slice(-10).map((_, i) => i + 1);
+            mentalChart.data.datasets[0].data = records.slice(-10).map(r => r.happy);
+            mentalChart.update();
+
+            // フォームクリア
             document.getElementById('walkSteps').value = '';
             document.getElementById('walkMinutes').value = '';
             document.getElementById('memoText').value = '';
+            setDailyMission(); // 次のミッションへ
         }
 
         function deleteRecord(idx) {
-            if (confirm('この記録を削除しますか？')) {
+            if (confirm('消去しますか？')) {
                 records.splice(idx, 1);
                 localStorage.setItem('sampo_v3', JSON.stringify(records));
                 renderList();
-                updateChart();
-            }
-        }
-
-        function clearData() {
-            if (confirm('全てのデータを完全に消去しますか？')) {
-                localStorage.removeItem('sampo_v3');
-                records = [];
-                renderList();
-                updateChart();
+                updateStatus();
+                mentalChart.update();
             }
         }
 
         window.onload = function() {
             initChart();
             renderList();
+            updateStatus();
+            setDailyMission();
 
-            document.getElementById('tagGroup').onclick = function(e) {
+            document.getElementById('tagGroup').onclick = (e) => {
                 if (e.target.classList.contains('tag')) {
                     document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
                     e.target.classList.add('active');
                 }
             };
-
-            document.getElementById('happySlider').oninput = function(e) {
+            document.getElementById('happySlider').oninput = (e) => {
                 document.getElementById('happyValDisplay').innerText = e.target.value;
             };
         };
     </script>
 </body>
-
 </html>
