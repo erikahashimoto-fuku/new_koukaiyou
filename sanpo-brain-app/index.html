@@ -48,6 +48,9 @@
     </div>
 
     <script>
+        function updateHappyNum(val) {
+            document.getElementById("happyNum").innerText = val;
+        }
 
     const savedPlace = localStorage.getItem("LastPlace");
     if (savedPlace) {
