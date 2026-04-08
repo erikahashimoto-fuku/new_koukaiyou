@@ -3,13 +3,16 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>散歩脳 - 完全修正版</title>
+    <title>散歩脳 - Premium Edition</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary-bg: #f4f7f6;
-            --white: #ffffff;
-            --text-color: #333333;
+            /* グラデーション背景用の色 */
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --panel-bg: rgba(255, 255, 255, 0.9);
+            --primary-color: #5a7fee;
+            --accent-color: #4CAF50;
+            --text-main: #2c3e50;
             --tag-joy: #FFD700;
             --tag-relax: #3CB371;
             --tag-concentration: #4169E1;
@@ -17,157 +20,160 @@
         }
 
         body {
-            font-family: 'Meiryo', sans-serif;
-            background-color: var(--primary-bg);
-            color: var(--text-color);
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
             margin: 0;
             padding: 20px;
+            min-height: 100vh;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: 400px 1fr;
-            gap: 20px;
+            grid-template-columns: 420px 1fr;
+            gap: 25px;
         }
 
-        /* スマホなどの幅が狭い画面用の設定 */
-        @media (max-width: 768px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
+        @media (max-width: 850px) {
+            .container { grid-template-columns: 1fr; }
         }
 
         .panel {
-            background: var(--white);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: var(--panel-bg);
+            backdrop-filter: blur(10px); /* 背景をぼかす */
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.18);
         }
 
-        h2 {
-            font-size: 1.2rem;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-
-        input,
-        textarea {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        .form-row {
+        h2 { 
+            font-size: 1.3rem; 
+            margin-top: 0;
+            margin-bottom: 20px;
             display: flex;
+            align-items: center;
             gap: 10px;
         }
 
-        .form-row>div {
-            flex: 1;
+        .form-group { margin-bottom: 18px; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; color: #555; }
+        
+        input, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            box-sizing: border-box; 
+            border: 1px solid #ddd; 
+            border-radius: 10px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
         }
 
-        .tag-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
+        .form-row { display: flex; gap: 12px; }
+        .form-row>div { flex: 1; }
 
+        .tag-group { display: flex; flex-wrap: wrap; gap: 8px; }
         .tag {
             border: 1px solid #ddd;
-            padding: 5px 10px;
-            border-radius: 15px;
+            padding: 6px 14px;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 13px;
             background: #fff;
+            transition: all 0.2s;
         }
-
+        .tag:hover { background: #f0f0f0; }
         .tag.active {
-            background: #5a7fee;
+            background: var(--primary-color);
             color: white;
-            border-color: #5a7fee;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 10px rgba(90, 127, 238, 0.3);
         }
 
         .record-btn {
             width: 100%;
-            padding: 12px;
-            background: #4CAF50;
+            padding: 15px;
+            background: var(--accent-color);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 12px;
             font-weight: bold;
-            cursor: pointer;
-        }
-
-        .chart-area {
-            height: 200px;
-            margin-bottom: 20px;
-        }
-
-        .archive-item {
-            border: 1px solid #eee;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            overflow: hidden;
-        }
-
-        .item-head {
-            padding: 8px 12px;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .item-body {
-            padding: 10px;
-            font-size: 14px;
-        }
-
-        .stats-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 5px;
-            color: #666;
-            font-size: 12px;
-        }
-
-        .delete-btn {
-            cursor: pointer;
             font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+        .record-btn:hover { box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3); }
+        .record-btn:active { transform: scale(0.98); }
+
+        .chart-area { height: 220px; margin-bottom: 10px; }
+
+        /* 履歴カードのデザイン */
+        .archive-item { 
+            background: white;
+            border-radius: 12px; 
+            margin-bottom: 15px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .archive-item:hover { transform: translateY(-2px); }
+
+        .item-head { 
+            padding: 10px 15px; 
+            color: white; 
+            display: flex; 
+            justify-content: space-between; 
+            font-weight: bold; 
+            font-size: 14px;
+        }
+        .item-body { padding: 15px; }
+        .stats-row { display: flex; gap: 15px; margin-bottom: 10px; }
+        .stat-badge {
+            background: #f8f9fa;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        /* 気分ごとの色設定 */
-        [data-style="joy"] .item-head {
-            background-color: var(--tag-joy);
-            color: #333;
+        .delete-btn { 
+            cursor: pointer; 
+            background: rgba(0,0,0,0.1);
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
         }
+        .delete-btn:hover { background: rgba(0,0,0,0.2); }
 
-        [data-style="relax"] .item-head {
-            background-color: var(--tag-relax);
-        }
+        [data-style="joy"] .item-head { background-color: var(--tag-joy); color: #333; }
+        [data-style="relax"] .item-head { background-color: var(--tag-relax); }
+        [data-style="concentration"] .item-head { background-color: var(--tag-concentration); }
+        [data-style="fatigue"] .item-head { background-color: var(--tag-fatigue); }
 
-        [data-style="concentration"] .item-head {
-            background-color: var(--tag-concentration);
-        }
-
-        [data-style="fatigue"] .item-head {
-            background-color: var(--tag-fatigue);
+        #clearDataBtn {
+            display: block;
+            margin: 30px auto 0;
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 12px;
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -184,11 +190,11 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>👣 歩数</label>
-                    <input type="number" id="walkSteps" placeholder="歩数を入れる">
+                    <input type="number" id="walkSteps" placeholder="歩">
                 </div>
                 <div class="form-group">
                     <label>⏱ 時間</label>
-                    <input type="number" id="walkMinutes" placeholder="分を入れる">
+                    <input type="number" id="walkMinutes" placeholder="分">
                 </div>
             </div>
 
@@ -204,21 +210,20 @@
 
             <div class="form-group">
                 <label>📝 メモ</label>
-                <textarea id="memoText" rows="3" placeholder="気づいたことは？"></textarea>
+                <textarea id="memoText" rows="3" placeholder="どんな景色が見えた？"></textarea>
             </div>
 
             <div class="form-group">
-                <label>😊 幸福度: <span id="happyValDisplay">80</span>%</label>
+                <label>😊 幸福度: <span id="happyValDisplay" style="color:var(--primary-color); font-size:1.2rem;">80</span>%</label>
                 <input type="range" id="happySlider" min="0" max="100" value="80">
             </div>
 
-            <button class="record-btn" onclick="addRecord()">記録する</button>
-            <button onclick="clearData()"
-                style="margin-top:15px; border:none; background:none; color:#999; cursor:pointer; font-size:11px;">データを全消去</button>
+            <button class="record-btn" onclick="addRecord()">記録を保存する</button>
+            <button id="clearDataBtn" onclick="clearData()">データを全消去</button>
         </div>
 
         <div>
-            <div class="panel" style="margin-bottom: 20px;">
+            <div class="panel" style="margin-bottom: 25px;">
                 <h2>🧠 幸福度の推移</h2>
                 <div class="chart-area">
                     <canvas id="mentalChart"></canvas>
@@ -226,18 +231,16 @@
             </div>
 
             <div class="panel">
-                <h2>📦 履歴</h2>
+                <h2>📦 履歴アーカイブ</h2>
                 <div id="archiveList"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // データの初期化
         let records = JSON.parse(localStorage.getItem('sampo_v3')) || [];
         let mentalChart;
 
-        // グラフを表示する関数
         function initChart() {
             const ctx = document.getElementById('mentalChart').getContext('2d');
             mentalChart = new Chart(ctx, {
@@ -246,33 +249,36 @@
                     labels: records.slice(-10).map((_, i) => i + 1),
                     datasets: [{
                         data: records.slice(-10).map(r => r.happy),
-                        borderColor: '#4169E1',
-                        fill: false,
-                        tension: 0.3
+                        borderColor: '#5a7fee',
+                        backgroundColor: 'rgba(90, 127, 238, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#5a7fee'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { y: { min: 0, max: 100 } },
+                    scales: { 
+                        y: { min: 0, max: 100, grid: { color: '#eee' } },
+                        x: { grid: { display: false } }
+                    },
                     plugins: { legend: { display: false } }
                 }
             });
         }
 
-        // グラフのデータを更新する関数
         function updateChart() {
             mentalChart.data.labels = records.slice(-10).map((_, i) => i + 1);
             mentalChart.data.datasets[0].data = records.slice(-10).map(r => r.happy);
             mentalChart.update();
         }
 
-        // 履歴リストを表示する関数
         function renderList() {
             const listDiv = document.getElementById('archiveList');
             listDiv.innerHTML = '';
-
-            // 新しい記録が一番上に来るように逆順で表示
+            
             records.slice().reverse().forEach((data, index) => {
                 const actualIndex = records.length - 1 - index;
                 const div = document.createElement('div');
@@ -281,26 +287,28 @@
                 div.innerHTML = `
                 <div class="item-head">
                     <span>📍 ${data.loc}</span>
-                    <span>${data.happy}% <span class="delete-btn" onclick="deleteRecord(${actualIndex})">×</span></span>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span>${data.happy}%</span>
+                        <span class="delete-btn" onclick="deleteRecord(${actualIndex})">×</span>
+                    </div>
                 </div>
                 <div class="item-body">
-                    <div style="font-size:11px; color:#888;">${data.time}</div>
+                    <div style="font-size:11px; color:#999; margin-bottom:8px;">📅 ${data.time}</div>
                     <div class="stats-row">
-                        <span>👣 ${data.steps || 0}歩</span>
-                        <span>⏱ ${data.mins || 0}分</span>
-                        <span>🏷 ${data.tagName}</span>
+                        <div class="stat-badge">👣 ${data.steps || 0}歩</div>
+                        <div class="stat-badge">⏱ ${data.mins || 0}分</div>
+                        <div class="stat-badge">🏷 ${data.tagName}</div>
                     </div>
-                    <div style="margin-top:8px;">${data.memo}</div>
+                    <div style="margin-top:10px; line-height:1.5;">${data.memo}</div>
                 </div>`;
                 listDiv.appendChild(div);
             });
         }
 
-        // 記録を追加する関数
         function addRecord() {
             const activeTag = document.querySelector('.tag.active');
             const now = new Date();
-            const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+            const timeStr = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()} ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
 
             const newEntry = {
                 loc: document.getElementById('walkLocation').value || '不明',
@@ -309,23 +317,22 @@
                 happy: parseInt(document.getElementById('happySlider').value),
                 tagName: activeTag.innerText,
                 style: activeTag.getAttribute('data-style'),
-                memo: document.getElementById('memoText').value || '（メモなし）',
+                memo: document.getElementById('memoText').value || '（なし）',
                 time: timeStr
             };
 
             records.push(newEntry);
             localStorage.setItem('sampo_v3', JSON.stringify(records));
-
+            
             renderList();
             updateChart();
-
-            // 入力欄を空にする
+            
+            // リセット
             document.getElementById('walkSteps').value = '';
             document.getElementById('walkMinutes').value = '';
             document.getElementById('memoText').value = '';
         }
 
-        // 特定の記録を削除する関数
         function deleteRecord(idx) {
             if (confirm('この記録を削除しますか？')) {
                 records.splice(idx, 1);
@@ -335,9 +342,8 @@
             }
         }
 
-        // 全データを削除する関数
         function clearData() {
-            if (confirm('全てのデータを消去しますか？')) {
+            if (confirm('全てのデータを完全に消去しますか？')) {
                 localStorage.removeItem('sampo_v3');
                 records = [];
                 renderList();
@@ -345,21 +351,18 @@
             }
         }
 
-        // 画面が読み込まれた時の処理
-        window.onload = function () {
+        window.onload = function() {
             initChart();
             renderList();
 
-            // タグをクリックした時の切り替え処理
-            document.getElementById('tagGroup').onclick = function (e) {
+            document.getElementById('tagGroup').onclick = function(e) {
                 if (e.target.classList.contains('tag')) {
                     document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
                     e.target.classList.add('active');
                 }
             };
 
-            // スライダーを動かした時に数字を変える処理
-            document.getElementById('happySlider').oninput = function (e) {
+            document.getElementById('happySlider').oninput = function(e) {
                 document.getElementById('happyValDisplay').innerText = e.target.value;
             };
         };
