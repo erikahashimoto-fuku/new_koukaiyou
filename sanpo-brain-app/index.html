@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <title>散歩記録アプリ</title>
@@ -9,38 +10,85 @@
                 opacity: 0;
                 transform: translateX(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
             }
         }
+
         .log {
             animation: slideIn 0.5s ease-out;
         }
+
         .flash {
             animation: flashEffect 0.3s ease-out;
         }
-    @keyframes flashEffect {
-        0% { background-color: #f0f9ff; }
-        50% { background-color: #ffffff; }
-        100% { background-color: #f0f9ff; }
-    }
 
-        
-        body { font-family: sans-serif; padding: 20px; background-color: #f0f9ff; }
-        .container { background: white; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        input, textarea { width: 100%; margin-bottom: 10px; padding: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #4caf50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        .log { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px; }
+        @keyframes flashEffect {
+            0% {
+                background-color: #f0f9ff;
+            }
+
+            50% {
+                background-color: #ffffff;
+            }
+
+            100% {
+                background-color: #f0f9ff;
+            }
+        }
+
+
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            background-color: #f0f9ff;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            margin: auto;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .log {
+            margin-top: 20px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h2>🐾 散歩記録</h2>
         <input type="text" id="place" placeholder="どこを歩いた？">
         <textarea id="memo" placeholder="感想など"></textarea>
         <div style="margin-top: 15px; margin-bottom: 15px;">
-            <label for="happiness" style="display: block; margin-bottom: 5px;">&#x1F60A; 今日の幸福度:<span id="happyNum">50</span>%</label>
+            <label for="happiness" style="display: block; margin-bottom: 5px;">&#x1F60A; 今日の幸福度:<span
+                    id="happyNum">50</span>%</label>
             <input type="range" id="happiness" min="1" max="100" value="50" oninput="updateHappyNum(this.value)">
         </div>
         <button onclick="addLog()">記録する</button>
@@ -52,30 +100,30 @@
             document.getElementById("happyNum").innerText = val;
         }
 
-    const savedPlace = localStorage.getItem("LastPlace");
-    if (savedPlace) {
-        const div = document.createElement("div");
-        div.className = "log" ;
-        div.innerHTML = "<strong>(前回の脳内記録)</strong><br> 📍 " + savedPlace;
-        document.getElementById("list").prepend(div);
+        const savedPlace = localStorage.getItem("LastPlace");
+        if (savedPlace) {
+            const div = document.createElement("div");
+            div.className = "log";
+            div.innerHTML = "<strong>(前回の脳内記録)</strong><br> 📍 " + savedPlace;
+            document.getElementById("list").prepend(div);
 
-    
-        alert("散歩を継続していて偉いです! 前回は [" + savedPlace + "] を歩きました！脳が活性化しています！");
-    }
 
-       
-       
-       
-       
-       
-       function addLog() {
+            alert("散歩を継続していて偉いです! 前回は [" + savedPlace + "] を歩きました！脳が活性化しています！");
+        }
+
+
+
+
+
+
+        function addLog() {
             const p = document.getElementById('place').value;
             const m = document.getElementById('memo').value;
             const h = document.getElementById("happiness").value;
 
-            if(!p) return alert("場所を入れてね");
-            localStorage.setItem("LastPlace" , p);
-            localStorage.setItem("LastHappy" ,h);
+            if (!p) return alert("場所を入れてね");
+            localStorage.setItem("LastPlace", p);
+            localStorage.setItem("LastHappy", h);
 
 
             const div = document.createElement('div');
@@ -85,10 +133,24 @@
             document.getElementById('list').prepend(div);
 
             document.getElementById('place').value = "";
-            document.getElementById('memo').value ="";
+            document.getElementById('memo').value = "";
             document.getElementById('happiness').value = 50;
             document.getElementById('happyNum').innerText = 50;
+            let color = "";
+            if (h >= 80) color = "#ffeb3b"; // キラキライエロー
+            else if (h >= 50) color = "#81c784"; // 穏やかなグリーン
+            else color = "#90a4ae"; // どんよりグレー
+
+            const div = document.createElement('div');
+            div.className = 'log';
+            div.style.backgroundColor = color; //
+
+
+
+
+
         }
     </script>
 </body>
+
 </html>
