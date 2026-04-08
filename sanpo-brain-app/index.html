@@ -41,26 +41,23 @@
 
 
         body {
-            font-family: sans-serif;
-            padding: 20px;
-            background-color: #f0f9ff;
+            background-color: #0d1117;
+            /* 深夜の脳内のような暗い色 */
+            color: #c9d1d9;
         }
 
         .container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 400px;
-            margin: auto;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: #161b22;
+            border: 1px solid #30363d;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.2);
+            /* ほんのり緑に光らせる */
         }
 
         input,
         textarea {
-            width: 100%;
-            margin-bottom: 10px;
-            padding: 8px;
-            box-sizing: border-box;
+            background: #0d1117;
+            color: white;
+            border: 1px solid #30363d;
         }
 
         button {
@@ -148,7 +145,7 @@
             // 5. 【重要】箱を作るのは「ここ一回だけ」！
             const div = document.createElement('div');
             div.className = 'log';
-            
+
             // 色とデザインを適用
             div.style.backgroundColor = color;
             div.style.padding = "10px";
