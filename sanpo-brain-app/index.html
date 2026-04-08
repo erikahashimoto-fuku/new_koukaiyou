@@ -5,165 +5,191 @@
     <meta charset="UTF-8">
     <title>散歩記録アプリ</title>
     <style>
+        /* アニメーション */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes flashEffect {
+            0% {
+                background-color: #f0f9ff;
+            }
+
+            50% {
+                background-color: #ffffff;
+            }
+
+            100% {
+                background-color: #f0f9ff;
+            }
+        }
+
+        /* 全体設定 */
         body {
             background-color: #f8f9fa;
-            /* 薄いベージュグレー */
-            color: #5d5d5d;
-            /* 濃すぎないグレー */
+            color: #000000;
+            /* 全体の基本文字色を黒に設定 */
             font-family: 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
             padding: 20px;
+        }
+
+        .flash {
+            animation: flashEffect 0.3s ease-out;
         }
 
         .container {
             background: white;
             padding: 30px;
             border-radius: 20px;
-            /* 角を大きく丸く */
             max-width: 420px;
             margin: auto;
-            /* 柔らかい影（ニューモーフィズム風） */
             box-shadow: 10px 10px 20px #e0e0e0, -10px -10px 20px #ffffff;
         }
 
-        /* こう書き換える！ */
+        /* 散歩記録バナー（タイトル） */
         h2 {
             text-align: center;
             background-color: #8da0b6;
-            /* 箱に色をつけて... */
-            color: #ffffff;
-            /* 文字を白抜きにする！ */
+            color: #000000 !important;
+            /* 文字を真っ黒に */
             padding: 15px;
-            border-radius: 10px;
-            font-size: 22px;
+            border-radius: 12px;
+            font-size: 26px;
+            font-weight: 900;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
+        /* 入力欄 */
         input,
         textarea {
             width: 100%;
             margin-bottom: 15px;
             padding: 15px;
-            /* 少し広く */
             box-sizing: border-box;
-            border: 1px solid #e0e0e0;
+            border: 2px solid #e0e0e0;
             border-radius: 15px;
             background: #fdfdfd;
             font-size: 16px;
+            color: #000000;
+            /* 入力する文字も黒 */
             transition: 0.3s;
         }
 
-        /* フォーカスした時、優しく緑がかる */
         input:focus,
         textarea:focus {
             outline: none;
             border-color: #a5d6a7;
             background-color: white;
+            box-shadow: 0 0 8px rgba(165, 214, 167, 0.4);
         }
 
+        /* 記録ボタン */
         button {
             width: 100%;
             padding: 15px;
             background-color: #8da0b6;
-            /* くすんだブルー */
-            color: white;
+            color: #000000 !important;
+            /* 文字を真っ黒に */
             border: none;
             border-radius: 15px;
             cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: 2px;
             transition: 0.3s;
-
-            button {
-                /* 既存のコードはそのままで、以下を上書き・追加 */
-                color: #ffffff;
-                /* 白のまま、もし黒が良ければ #000000 */
-                font-weight: 900;
-                /* 100〜900で指定。最大級に太くします */
-                font-size: 18px;
-                /* 少し大きくして存在感を出す */
-                letter-spacing: 2px;
-                /* 文字の間隔を広げて高級感を出す */
-            }
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         button:hover {
             background-color: #a5bccf;
-            /* 少し明るく */
-            transform: translateY(-1px);
+            transform: translateY(-2px);
         }
 
-        //* ログのデザインも優しく */
+        /* 履歴（ログ）のデザイン */
         .log {
             margin-top: 25px;
             padding: 20px;
             border-radius: 15px;
             border: none;
-            /* background-color: white; ←これは消す（JSで色をつけるため） */
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            color: #000000;
-            /* ★ここを真っ黒(#000000)に固定する */
+            color: #000000 !important;
+            /* 履歴の文字を真っ黒に固定 */
             font-weight: bold;
-            /* 読みやすくするために太字に */
+            animation: slideIn 0.5s ease-out;
         }
-
-        * ログのデザインも優しく */
     </style>
 </head>
 
 <body>
     <div class="container">
         <h2>🐾 散歩記録</h2>
+
         <input type="text" id="place" placeholder="どこを歩いた？">
         <textarea id="memo" placeholder="感想など"></textarea>
+
         <div style="margin-top: 15px; margin-bottom: 15px;">
-            <label for="happiness" style="display: block; margin-bottom: 5px;">&#x1F60A; 今日の幸福度:<span
-                    id="happyNum">50</span>%</label>
+            <label for="happiness" style="display: block; margin-bottom: 5px; font-weight: bold;">
+                &#x1F60A; 今日の幸福度:<span id="happyNum">50</span>%
+            </label>
             <input type="range" id="happiness" min="1" max="100" value="50" oninput="updateHappyNum(this.value)">
         </div>
+
         <button onclick="addLog()">記録する</button>
+
         <div id="list"></div>
     </div>
 
     <script>
+        // スライダーの数値を更新
         function updateHappyNum(val) {
             document.getElementById("happyNum").innerText = val;
         }
 
-        const savedPlace = localStorage.getItem("LastPlace");
-        if (savedPlace) {
-            const div = document.createElement("div");
-            div.className = "log";
-            div.innerHTML = "<strong>(前回の脳内記録)</strong><br> 📍 " + savedPlace;
-            document.getElementById("list").prepend(div);
+        // ページ読み込み時に前回の場所を表示
+        window.onload = function () {
+            const savedPlace = localStorage.getItem("LastPlace");
+            if (savedPlace) {
+                const div = document.createElement("div");
+                div.className = "log";
+                div.style.backgroundColor = "#ffffff";
+                div.style.border = "2px solid #8da0b6";
+                div.innerHTML = "<strong>(前回の脳内記録)</strong><br> 📍 " + savedPlace;
+                document.getElementById("list").prepend(div);
 
+                setTimeout(() => {
+                    alert("散歩を継続していて偉いです! 前回は [" + savedPlace + "] を歩きました！脳が活性化しています！");
+                }, 500);
+            }
+        };
 
-            alert("散歩を継続していて偉いです! 前回は [" + savedPlace + "] を歩きました！脳が活性化しています！");
-        }
-
-
-
-
-
-
+        // ログを追加するメイン関数
         function addLog() {
-            // 1. 入力値を取得
             const p = document.getElementById('place').value;
             const m = document.getElementById('memo').value;
             const h = document.getElementById("happiness").value;
 
-            // 場所が入っていないときはストップ
             if (!p) return alert("場所を入れてね");
 
-            // 2. 演出：画面を一瞬光らせる
+            // 演出：画面を光らせる
             document.body.classList.add("flash");
             setTimeout(() => {
                 document.body.classList.remove("flash");
             }, 300);
 
-            // 3. 保存
+            // 保存
             localStorage.setItem("LastPlace", p);
             localStorage.setItem("LastHappy", h);
 
-            // 4. 幸福度によって色を決める
+            // 幸福度による色の判定
             let color = "";
             if (h >= 80) {
                 color = "#ffeb3b"; // 黄色
@@ -173,23 +199,25 @@
                 color = "#90a4ae"; // グレー
             }
 
-            // 5. 【重要】箱を作るのは「ここ一回だけ」！
+            // ログの箱（div）を作成
             const div = document.createElement('div');
             div.className = 'log';
 
-            // 色とデザインを適用
+            // デザインを適用
             div.style.backgroundColor = color;
-            div.style.padding = "10px";
-            div.style.borderRadius = "8px";
-            div.style.marginTop = "15px";
+            div.style.color = "#000000"; // 文字を黒に固定
 
             // 中身を書き込む
-            div.innerHTML = `<strong>${new Date().toLocaleString()}</strong><br>📍 ${p} (幸福度: ${h}%)<p>${m}</p>`;
+            div.innerHTML = `
+                <strong>${new Date().toLocaleString()}</strong><br>
+                📍 ${p} (幸福度: ${h}%)
+                <p style="margin-top: 10px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 5px;">${m}</p>
+            `;
 
-            // 6. 画面の一番上に追加
+            // リストの先頭に追加
             document.getElementById('list').prepend(div);
 
-            // 7. 入力欄をリセット
+            // 入力欄をリセット
             document.getElementById('place').value = "";
             document.getElementById('memo').value = "";
             document.getElementById('happiness').value = 50;
