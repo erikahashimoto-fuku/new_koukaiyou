@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>散歩脳 - バグ修正版</title>
+    <title>散歩脳 - 完全修正版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -32,6 +32,7 @@
             gap: 20px;
         }
 
+        /* スマホなどの幅が狭い画面用の設定 */
         @media (max-width: 768px) {
             .container {
                 grid-template-columns: 1fr;
@@ -151,6 +152,7 @@
             font-size: 16px;
         }
 
+        /* 気分ごとの色設定 */
         [data-style="joy"] .item-head {
             background-color: var(--tag-joy);
             color: #333;
@@ -182,11 +184,11 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>👣 歩数</label>
-                    <input type="number" id="walkSteps" placeholder="歩">
+                    <input type="number" id="walkSteps" placeholder="歩数を入れる">
                 </div>
                 <div class="form-group">
                     <label>⏱ 時間</label>
-                    <input type="number" id="walkMinutes" placeholder="分">
+                    <input type="number" id="walkMinutes" placeholder="分を入れる">
                 </div>
             </div>
 
@@ -202,7 +204,7 @@
 
             <div class="form-group">
                 <label>📝 メモ</label>
-                <textarea id="memoText" rows="3"></textarea>
+                <textarea id="memoText" rows="3" placeholder="気づいたことは？"></textarea>
             </div>
 
             <div class="form-group">
@@ -231,10 +233,11 @@
     </div>
 
     <script>
+        // データの初期化
         let records = JSON.parse(localStorage.getItem('sampo_v3')) || [];
         let mentalChart;
 
-        // グラフ初期化
+        // グラフを表示する関数
         function initChart() {
             const ctx = document.getElementById('mentalChart').getContext('2d');
             mentalChart = new Chart(ctx, {
@@ -243,4 +246,124 @@
                     labels: records.slice(-10).map((_, i) => i + 1),
                     datasets: [{
                         data: records.slice(-10).map(r => r.happy),
-                        borderColor: '#4
+                        borderColor: '#4169E1',
+                        fill: false,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { min: 0, max: 100 } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // グラフのデータを更新する関数
+        function updateChart() {
+            mentalChart.data.labels = records.slice(-10).map((_, i) => i + 1);
+            mentalChart.data.datasets[0].data = records.slice(-10).map(r => r.happy);
+            mentalChart.update();
+        }
+
+        // 履歴リストを表示する関数
+        function renderList() {
+            const listDiv = document.getElementById('archiveList');
+            listDiv.innerHTML = '';
+
+            // 新しい記録が一番上に来るように逆順で表示
+            records.slice().reverse().forEach((data, index) => {
+                const actualIndex = records.length - 1 - index;
+                const div = document.createElement('div');
+                div.className = 'archive-item';
+                div.setAttribute('data-style', data.style);
+                div.innerHTML = `
+                <div class="item-head">
+                    <span>📍 ${data.loc}</span>
+                    <span>${data.happy}% <span class="delete-btn" onclick="deleteRecord(${actualIndex})">×</span></span>
+                </div>
+                <div class="item-body">
+                    <div style="font-size:11px; color:#888;">${data.time}</div>
+                    <div class="stats-row">
+                        <span>👣 ${data.steps || 0}歩</span>
+                        <span>⏱ ${data.mins || 0}分</span>
+                        <span>🏷 ${data.tagName}</span>
+                    </div>
+                    <div style="margin-top:8px;">${data.memo}</div>
+                </div>`;
+                listDiv.appendChild(div);
+            });
+        }
+
+        // 記録を追加する関数
+        function addRecord() {
+            const activeTag = document.querySelector('.tag.active');
+            const now = new Date();
+            const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+            const newEntry = {
+                loc: document.getElementById('walkLocation').value || '不明',
+                steps: document.getElementById('walkSteps').value,
+                mins: document.getElementById('walkMinutes').value,
+                happy: parseInt(document.getElementById('happySlider').value),
+                tagName: activeTag.innerText,
+                style: activeTag.getAttribute('data-style'),
+                memo: document.getElementById('memoText').value || '（メモなし）',
+                time: timeStr
+            };
+
+            records.push(newEntry);
+            localStorage.setItem('sampo_v3', JSON.stringify(records));
+
+            renderList();
+            updateChart();
+
+            // 入力欄を空にする
+            document.getElementById('walkSteps').value = '';
+            document.getElementById('walkMinutes').value = '';
+            document.getElementById('memoText').value = '';
+        }
+
+        // 特定の記録を削除する関数
+        function deleteRecord(idx) {
+            if (confirm('この記録を削除しますか？')) {
+                records.splice(idx, 1);
+                localStorage.setItem('sampo_v3', JSON.stringify(records));
+                renderList();
+                updateChart();
+            }
+        }
+
+        // 全データを削除する関数
+        function clearData() {
+            if (confirm('全てのデータを消去しますか？')) {
+                localStorage.removeItem('sampo_v3');
+                records = [];
+                renderList();
+                updateChart();
+            }
+        }
+
+        // 画面が読み込まれた時の処理
+        window.onload = function () {
+            initChart();
+            renderList();
+
+            // タグをクリックした時の切り替え処理
+            document.getElementById('tagGroup').onclick = function (e) {
+                if (e.target.classList.contains('tag')) {
+                    document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+                    e.target.classList.add('active');
+                }
+            };
+
+            // スライダーを動かした時に数字を変える処理
+            document.getElementById('happySlider').oninput = function (e) {
+                document.getElementById('happyValDisplay').innerText = e.target.value;
+            };
+        };
+    </script>
+</body>
+
+</html>
