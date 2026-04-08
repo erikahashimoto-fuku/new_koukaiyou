@@ -131,75 +131,94 @@
     <div class="container">
         <h2>🐾 散歩記録</h2>
 
-        <input type="text" id="place" placeholder="どこを歩いた？">
-        <textarea id="memo" placeholder="感想など"></textarea>
+        <body>
+            <div class="container">
+                <h2>🐾 散歩記録</h2>
 
-        <div style="margin-top: 15px; margin-bottom: 15px;">
-            <label for="happiness" style="display: block; margin-bottom: 8px; font-weight: bold; color: #007bff;">
-                😊 今日の幸福度: <span id="happyNum">50</span>%
-            </label>
-            <input type="range" id="happiness" min="1" max="100" value="50" oninput="updateHappyNum(this.value)"
-                style="width: 100%;">
-        </div>
+                <div id="brain-advisor"
+                    style="background: #f0f7ff; padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 2px solid #007bff; display: flex; align-items: center; position: relative;">
+                    <div style="font-size: 40px; margin-right: 15px;" id="char-icon">🤖</div>
+                    <div>
+                        <div id="badge-area"
+                            style="font-size: 10px; font-weight: bold; color: #28a745; margin-bottom: 5px;">【散歩ビギナー】
+                        </div>
+                        <div id="ai-message" style="font-size: 14px; font-weight: bold; color: #333;">
+                            「スキャン準備完了！今日の君の脳内を教えてくれ！」</div>
+                    </div>
+                </div>
+                <input type="text" id="place" placeholder="どこを歩いた？">
+                ...
 
-        <button onclick="addLog()">記録を保存する</button>
+                <input type="text" id="place" placeholder="どこを歩いた？">
+                <textarea id="memo" placeholder="感想など"></textarea>
 
-        <div id="list"></div>
-    </div>
+                <div style="margin-top: 15px; margin-bottom: 15px;">
+                    <label for="happiness"
+                        style="display: block; margin-bottom: 8px; font-weight: bold; color: #007bff;">
+                        😊 今日の幸福度: <span id="happyNum">50</span>%
+                    </label>
+                    <input type="range" id="happiness" min="1" max="100" value="50" oninput="updateHappyNum(this.value)"
+                        style="width: 100%;">
+                </div>
 
-    <script>
-        function updateHappyNum(val) {
-            document.getElementById("happyNum").innerText = val;
-        }
+                <button onclick="addLog()">記録を保存する</button>
 
-        window.onload = function () {
-            const savedPlace = localStorage.getItem("LastPlace");
-            if (savedPlace) {
-                const div = document.createElement("div");
-                div.className = "log";
-                div.style.backgroundColor = "#e3f2fd";
-                div.style.border = "2px solid #007bff";
-                div.innerHTML = "<strong>(前回の脳内記録)</strong><br> 📍 " + savedPlace;
-                document.getElementById("list").prepend(div);
-            }
-        };
+                <div id="list"></div>
+            </div>
 
-        function addLog() {
-            const p = document.getElementById('place').value;
-            const m = document.getElementById('memo').value;
-            const h = document.getElementById("happiness").value;
+            <script>
+                function updateHappyNum(val) {
+                    document.getElementById("happyNum").innerText = val;
+                }
 
-            if (!p) return alert("場所を入力してください");
+                window.onload = function () {
+                    const savedPlace = localStorage.getItem("LastPlace");
+                    if (savedPlace) {
+                        const div = document.createElement("div");
+                        div.className = "log";
+                        div.style.backgroundColor = "#e3f2fd";
+                        div.style.border = "2px solid #007bff";
+                        div.innerHTML = "<strong>(前回の脳内記録)</strong><br> 📍 " + savedPlace;
+                        document.getElementById("list").prepend(div);
+                    }
+                };
 
-            document.body.classList.add("flash");
-            setTimeout(() => document.body.classList.remove("flash"), 300);
+                function addLog() {
+                    const p = document.getElementById('place').value;
+                    const m = document.getElementById('memo').value;
+                    const h = document.getElementById("happiness").value;
 
-            localStorage.setItem("LastPlace", p);
+                    if (!p) return alert("場所を入力してください");
 
-            let color = "";
-            if (h >= 80) color = "#fff176"; // 鮮やかな黄
-            else if (h >= 50) color = "#a5d6a7"; // 鮮やかな緑
-            else color = "#eeeeee"; // 落ち着いた白に近いグレー
+                    document.body.classList.add("flash");
+                    setTimeout(() => document.body.classList.remove("flash"), 300);
 
-            const div = document.createElement('div');
-            div.className = 'log';
-            div.style.backgroundColor = color;
-            div.style.color = "#000000";
+                    localStorage.setItem("LastPlace", p);
 
-            div.innerHTML = `
+                    let color = "";
+                    if (h >= 80) color = "#fff176"; // 鮮やかな黄
+                    else if (h >= 50) color = "#a5d6a7"; // 鮮やかな緑
+                    else color = "#eeeeee"; // 落ち着いた白に近いグレー
+
+                    const div = document.createElement('div');
+                    div.className = 'log';
+                    div.style.backgroundColor = color;
+                    div.style.color = "#000000";
+
+                    div.innerHTML = `
                 <strong>${new Date().toLocaleString()}</strong><br>
                 📍 ${p} (幸福度: ${h}%)
                 <p style="margin-top: 10px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 5px;">${m}</p>
             `;
 
-            document.getElementById('list').prepend(div);
+                    document.getElementById('list').prepend(div);
 
-            document.getElementById('place').value = "";
-            document.getElementById('memo').value = "";
-            document.getElementById('happiness').value = 50;
-            document.getElementById('happyNum').innerText = 50;
-        }
-    </script>
-</body>
+                    document.getElementById('place').value = "";
+                    document.getElementById('memo').value = "";
+                    document.getElementById('happiness').value = 50;
+                    document.getElementById('happyNum').innerText = 50;
+                }
+            </script>
+        </body>
 
 </html>
