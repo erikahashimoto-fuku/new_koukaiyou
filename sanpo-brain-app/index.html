@@ -87,16 +87,21 @@
             transform: translateY(-1px);
         }
 
-        /* ログのデザインも優しく */
+        //* ログのデザインも優しく */
         .log {
             margin-top: 25px;
             padding: 20px;
             border-radius: 15px;
             border: none;
-            background-color: white;
-            box-shadow: inset 5px 5px 10px #f0f0f0, inset -5px -5px 10px #ffffff;
-            color: #5d5d5d;
+            /* background-color: white; ←これは消す（JSで色をつけるため） */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            color: #000000;
+            /* ★ここを真っ黒(#000000)に固定する */
+            font-weight: bold;
+            /* 読みやすくするために太字に */
         }
+
+        * ログのデザインも優しく */
     </style>
 </head>
 
