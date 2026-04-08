@@ -3,9 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>さんぽ道マッピング | メンタル解析アーカイブ</title>
+    <title>散歩脳 | メンタル解析アーカイブ</title>
     <style>
-        /* 前回のデザインをすべて継承 */
+        /* アニメーション */
         @keyframes slideUp {
             from {
                 opacity: 0;
@@ -33,7 +33,7 @@
         body {
             background-color: #f4f7f9;
             color: #2c3e50;
-            font-family: sans-serif;
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
             padding: 20px;
         }
 
@@ -54,9 +54,11 @@
             padding: 15px;
             border-radius: 12px;
             font-size: 22px;
+            font-weight: 900;
             margin-top: 0;
         }
 
+        /* AIアドバイザー */
         #brain-advisor {
             background: #f8fbff;
             padding: 15px;
@@ -77,10 +79,12 @@
             font-size: 13px;
             font-weight: bold;
             color: #34495e;
+            line-height: 1.4;
         }
 
+        /* 入力エリア */
         .tag-container {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             display: flex;
             flex-wrap: wrap;
             gap: 5px;
@@ -102,7 +106,8 @@
         }
 
         input,
-        textarea {
+        textarea,
+        select {
             width: 100%;
             margin-bottom: 15px;
             padding: 12px;
@@ -122,8 +127,28 @@
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
         }
 
+        /* --- 管理機能エリア（検索・フィルタ） --- */
+        .admin-panel {
+            margin-top: 25px;
+            padding: 15px;
+            background: #eef2f7;
+            border-radius: 12px;
+            border: 1px solid #d1d9e0;
+        }
+
+        .admin-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #5a67d8;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* カードデザイン */
         .log-card {
             margin-top: 20px;
             border-radius: 15px;
@@ -153,6 +178,7 @@
         .vital-gauge-fill {
             height: 100%;
             background: #2c3e50;
+            transition: 0.5s;
         }
 
         .card-body {
@@ -168,6 +194,7 @@
             border-top: 1px solid #edf2f7;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-size: 11px;
         }
 
@@ -179,10 +206,10 @@
             cursor: pointer;
         }
 
-        /* 削除ボタンのデザイン */
         .delete-btn {
             color: #e53e3e;
             cursor: pointer;
+            font-size: 14px;
             margin-left: 10px;
         }
     </style>
@@ -194,32 +221,44 @@
 
         <div id="brain-advisor">
             <div id="char-icon">🤖</div>
-            <div id="ai-message">全ログの同期が完了しました。解析を続けましょう。</div>
+            <div id="ai-message">全データの同期が完了。君の歩みはすべてここに記録されているよ。</div>
         </div>
 
-        <input type="text" id="place" placeholder="観測地点">
+        <input type="text" id="place" placeholder="観測地点（どこを歩いた？）">
         <div class="tag-container" id="tagList">
             <span class="status-tag" onclick="this.classList.toggle('active')">#集中</span>
             <span class="status-tag" onclick="this.classList.toggle('active')">#リラックス</span>
             <span class="status-tag" onclick="this.classList.toggle('active')">#アイデア</span>
             <span class="status-tag" onclick="this.classList.toggle('active')">#脳内バグ</span>
         </div>
-        <textarea id="memo" placeholder="解析ログを入力..." rows="3"></textarea>
+        <textarea id="memo" placeholder="解析ログ：思考内容をデバッグ..." rows="3"></textarea>
 
         <div style="margin-bottom: 20px;">
-            <label style="display: block; font-size: 13px; font-weight: bold;">😊 幸福度: <span
+            <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px;">🧠 幸福度バイタル: <span
                     id="happyNum">50</span>%</label>
             <input type="range" id="happiness" min="1" max="100" value="50"
                 oninput="document.getElementById('happyNum').innerText=this.value" style="width: 100%;">
         </div>
 
-        <button onclick="addLog()">解析データを保存</button>
+        <button onclick="addLog()">データを解析・永続保存</button>
+
+        <div class="admin-panel">
+            <span class="admin-title">🔍 ログ管理・検索</span>
+            <input type="text" id="searchInput" onkeyup="filterLogs()" placeholder="キーワードや場所で検索..."
+                style="margin-bottom: 10px; padding: 8px; font-size: 13px;">
+            <select id="monthFilter" onchange="filterLogs()" style="padding: 8px; font-size: 13px; margin-bottom: 0;">
+                <option value="">すべての月を表示</option>
+                <option value="/4/">4月</option>
+                <option value="/5/">5月</option>
+                <option value="/6/">6月</option>
+            </select>
+        </div>
 
         <div id="list"></div>
     </div>
 
     <script>
-        // --- 1. ページ読み込み時にデータを復元 ---
+        // ページ読み込み時にLocalStorageから全データを復元
         window.onload = function () {
             const savedLogs = JSON.parse(localStorage.getItem("MentalLogs") || "[]");
             savedLogs.forEach(log => displayLog(log));
@@ -233,31 +272,29 @@
 
             if (!p) return alert("場所を入力してください");
 
-            // データオブジェクト作成
             const newLog = {
                 id: Date.now(),
                 place: p,
                 memo: m,
                 happy: h,
                 tags: tags,
-                time: new Date().toLocaleString()
+                time: new Date().toLocaleString() // 例: 2026/4/8 14:00:00
             };
 
-            // --- 2. LocalStorageに保存 ---
+            // LocalStorageに保存
             const savedLogs = JSON.parse(localStorage.getItem("MentalLogs") || "[]");
             savedLogs.push(newLog);
             localStorage.setItem("MentalLogs", JSON.stringify(savedLogs));
 
-            // 表示
             displayLog(newLog);
 
-            // リセット
+            // 入力リセット
             document.getElementById('place').value = "";
             document.getElementById('memo').value = "";
             document.querySelectorAll('.status-tag').forEach(t => t.classList.remove('active'));
         }
 
-        // ログを表示する共通関数
+        // ログを表示する関数
         function displayLog(log) {
             const color = log.happy >= 80 ? "#fff176" : log.happy >= 50 ? "#a5d6a7" : "#cbd5e0";
             const card = document.createElement('div');
@@ -286,19 +323,15 @@
             document.getElementById('list').prepend(card);
         }
 
-        // --- 3. データを削除する機能も追加 ---
-        function deleteLog(id) {
-            if (!confirm("この解析データを削除しますか？")) return;
-            let savedLogs = JSON.parse(localStorage.getItem("MentalLogs") || "[]");
-            savedLogs = savedLogs.filter(log => log.id !== id);
-            localStorage.setItem("MentalLogs", JSON.stringify(savedLogs));
-            document.getElementById(`log-${id}`).remove();
-        }
+        // 検索・月別フィルタリング
+        function filterLogs() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const monthTerm = document.getElementById('monthFilter').value;
+            const cards = document.getElementsByClassName('log-card');
 
-        function share(p, h) {
-            alert(`【共有準備】地点:${p} 幸福度:${h}% のデータをコピーしました。`);
-        }
-    </script>
-</body>
+            Array.from(cards).forEach(card => {
+                const text = card.innerText.toLowerCase();
+                const dateText = card.querySelector('.card-footer span').innerText;
 
-</html>
+                const matchesSearch = text.includes(searchTerm);
+                const matchesMonth = monthTerm === "" || dateText.includes(monthTerm);
