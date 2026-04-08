@@ -20,7 +20,7 @@
 
         @keyframes flashEffect {
             0% {
-                background-color: #f0f9ff;
+                background-color: #e3f2fd;
             }
 
             50% {
@@ -28,15 +28,15 @@
             }
 
             100% {
-                background-color: #f0f9ff;
+                background-color: #e3f2fd;
             }
         }
 
-        /* 全体設定 */
         body {
-            background-color: #f8f9fa;
+            background-color: #ffffff;
+            /* 背景は真っ白 */
             color: #000000;
-            /* 全体の基本文字色を黒に設定 */
+            /* 文字は真っ黒 */
             font-family: 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
             padding: 20px;
         }
@@ -46,83 +46,81 @@
         }
 
         .container {
-            background: white;
+            background: #ffffff;
             padding: 30px;
             border-radius: 20px;
             max-width: 420px;
             margin: auto;
-            box-shadow: 10px 10px 20px #e0e0e0, -10px -10px 20px #ffffff;
+            /* 影も灰色ではなく、薄い青にして清潔感を出しました */
+            box-shadow: 0 10px 30px rgba(0, 123, 255, 0.1);
+            border: 1px solid #e3f2fd;
         }
 
-        /* 散歩記録バナー（タイトル） */
+        /* 散歩記録バナー：灰色を消して「鮮やかな青」にしました */
         h2 {
             text-align: center;
-            background-color: #8da0b6;
-            color: #000000 !important;
-            /* 文字を真っ黒に */
+            background-color: #007bff;
+            /* 鮮やかなブルー */
+            color: #ffffff !important;
+            /* 文字は白抜きでハッキリ */
             padding: 15px;
             border-radius: 12px;
             font-size: 26px;
             font-weight: 900;
             margin-bottom: 25px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
         }
 
-        /* 入力欄 */
         input,
         textarea {
             width: 100%;
             margin-bottom: 15px;
             padding: 15px;
             box-sizing: border-box;
-            border: 2px solid #e0e0e0;
+            border: 2px solid #007bff;
+            /* 枠線も青に */
             border-radius: 15px;
-            background: #fdfdfd;
+            background: #ffffff;
             font-size: 16px;
             color: #000000;
-            /* 入力する文字も黒 */
             transition: 0.3s;
         }
 
         input:focus,
         textarea:focus {
             outline: none;
-            border-color: #a5d6a7;
-            background-color: white;
-            box-shadow: 0 0 8px rgba(165, 214, 167, 0.4);
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
         }
 
-        /* 記録ボタン */
+        /* 記録ボタン：灰色を消して「鮮やかな緑」にしました */
         button {
             width: 100%;
-            padding: 15px;
-            background-color: #8da0b6;
-            color: #000000 !important;
-            /* 文字を真っ黒に */
+            padding: 18px;
+            background-color: #28a745;
+            /* 鮮やかな成功のグリーン */
+            color: #ffffff !important;
+            /* 文字は白抜きで太く */
             border: none;
             border-radius: 15px;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 900;
             letter-spacing: 2px;
             transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
 
         button:hover {
-            background-color: #a5bccf;
+            background-color: #218838;
             transform: translateY(-2px);
         }
 
-        /* 履歴（ログ）のデザイン */
         .log {
             margin-top: 25px;
             padding: 20px;
             border-radius: 15px;
-            border: none;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             color: #000000 !important;
-            /* 履歴の文字を真っ黒に固定 */
             font-weight: bold;
             animation: slideIn 0.5s ease-out;
         }
@@ -137,87 +135,65 @@
         <textarea id="memo" placeholder="感想など"></textarea>
 
         <div style="margin-top: 15px; margin-bottom: 15px;">
-            <label for="happiness" style="display: block; margin-bottom: 5px; font-weight: bold;">
-                &#x1F60A; 今日の幸福度:<span id="happyNum">50</span>%
+            <label for="happiness" style="display: block; margin-bottom: 8px; font-weight: bold; color: #007bff;">
+                😊 今日の幸福度: <span id="happyNum">50</span>%
             </label>
-            <input type="range" id="happiness" min="1" max="100" value="50" oninput="updateHappyNum(this.value)">
+            <input type="range" id="happiness" min="1" max="100" value="50" oninput="updateHappyNum(this.value)"
+                style="width: 100%;">
         </div>
 
-        <button onclick="addLog()">記録する</button>
+        <button onclick="addLog()">記録を保存する</button>
 
         <div id="list"></div>
     </div>
 
     <script>
-        // スライダーの数値を更新
         function updateHappyNum(val) {
             document.getElementById("happyNum").innerText = val;
         }
 
-        // ページ読み込み時に前回の場所を表示
         window.onload = function () {
             const savedPlace = localStorage.getItem("LastPlace");
             if (savedPlace) {
                 const div = document.createElement("div");
                 div.className = "log";
-                div.style.backgroundColor = "#ffffff";
-                div.style.border = "2px solid #8da0b6";
+                div.style.backgroundColor = "#e3f2fd";
+                div.style.border = "2px solid #007bff";
                 div.innerHTML = "<strong>(前回の脳内記録)</strong><br> 📍 " + savedPlace;
                 document.getElementById("list").prepend(div);
-
-                setTimeout(() => {
-                    alert("散歩を継続していて偉いです! 前回は [" + savedPlace + "] を歩きました！脳が活性化しています！");
-                }, 500);
             }
         };
 
-        // ログを追加するメイン関数
         function addLog() {
             const p = document.getElementById('place').value;
             const m = document.getElementById('memo').value;
             const h = document.getElementById("happiness").value;
 
-            if (!p) return alert("場所を入れてね");
+            if (!p) return alert("場所を入力してください");
 
-            // 演出：画面を光らせる
             document.body.classList.add("flash");
-            setTimeout(() => {
-                document.body.classList.remove("flash");
-            }, 300);
+            setTimeout(() => document.body.classList.remove("flash"), 300);
 
-            // 保存
             localStorage.setItem("LastPlace", p);
-            localStorage.setItem("LastHappy", h);
 
-            // 幸福度による色の判定
             let color = "";
-            if (h >= 80) {
-                color = "#ffeb3b"; // 黄色
-            } else if (h >= 50) {
-                color = "#81c784"; // 緑
-            } else {
-                color = "#90a4ae"; // グレー
-            }
+            if (h >= 80) color = "#fff176"; // 鮮やかな黄
+            else if (h >= 50) color = "#a5d6a7"; // 鮮やかな緑
+            else color = "#eeeeee"; // 落ち着いた白に近いグレー
 
-            // ログの箱（div）を作成
             const div = document.createElement('div');
             div.className = 'log';
-
-            // デザインを適用
             div.style.backgroundColor = color;
-            div.style.color = "#000000"; // 文字を黒に固定
+            div.style.color = "#000000";
 
-            // 中身を書き込む
             div.innerHTML = `
                 <strong>${new Date().toLocaleString()}</strong><br>
                 📍 ${p} (幸福度: ${h}%)
                 <p style="margin-top: 10px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 5px;">${m}</p>
             `;
 
-            // リストの先頭に追加
             document.getElementById('list').prepend(div);
 
-            // 入力欄をリセット
             document.getElementById('place').value = "";
             document.getElementById('memo').value = "";
             document.getElementById('happiness').value = 50;
