@@ -3,32 +3,18 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>さんぽ道マッピング | 脳内スキャン</title>
+    <title>さんぽ道マッピング | メンタル解析システム</title>
     <style>
-        /* アニメーション設定 */
-        @keyframes slideIn {
+        /* アニメーション */
+        @keyframes slideUp {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(20px);
             }
 
             to {
                 opacity: 1;
                 transform: translateY(0);
-            }
-        }
-
-        @keyframes flashEffect {
-            0% {
-                background-color: #e3f2fd;
-            }
-
-            50% {
-                background-color: #ffffff;
-            }
-
-            100% {
-                background-color: #e3f2fd;
             }
         }
 
@@ -44,261 +30,268 @@
             }
         }
 
-        /* 全体デザイン */
         body {
-            background-color: #f8f9fa;
-            color: #000000;
-            font-family: 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+            background-color: #f4f7f9;
+            color: #2c3e50;
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
             padding: 20px;
-        }
-
-        .flash {
-            animation: flashEffect 0.3s ease-out;
         }
 
         .container {
             background: #ffffff;
             padding: 30px;
             border-radius: 20px;
-            max-width: 420px;
+            max-width: 440px;
             margin: auto;
-            box-shadow: 0 10px 30px rgba(0, 123, 255, 0.1);
-            border: 1px solid #e3f2fd;
+            box-shadow: 0 15px 35px rgba(0, 123, 255, 0.1);
+            border: 1px solid #d1d9e0;
         }
 
         h2 {
             text-align: center;
-            background-color: #007bff;
+            background: linear-gradient(135deg, #007bff, #0056b3);
             color: #ffffff !important;
             padding: 15px;
             border-radius: 12px;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 900;
             margin-top: 0;
-            margin-bottom: 20px;
+            letter-spacing: 1px;
         }
 
+        /* 脳内アドバイザー */
         #brain-advisor {
-            background: #ffffff;
+            background: #f8fbff;
             padding: 15px;
-            border-radius: 15px;
+            border-radius: 12px;
             margin-bottom: 20px;
             display: flex;
             align-items: center;
-            border-left: 5px solid #007bff;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #007bff;
         }
 
         #char-icon {
             font-size: 40px;
             margin-right: 15px;
-            animation: float 2s ease-in-out infinite;
+            animation: float 2s infinite;
         }
 
         #badge-area {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: bold;
             color: #ff007f;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
 
         #ai-message {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
-            color: #333;
-            line-height: 1.4;
+            color: #34495e;
+        }
+
+        /* メンタルタグ */
+        .tag-container {
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .status-tag {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            border: 1px solid #cbd5e0;
+            background: #fff;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .status-tag.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
         }
 
         input,
         textarea {
             width: 100%;
             margin-bottom: 15px;
-            padding: 15px;
+            padding: 12px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 15px;
             box-sizing: border-box;
-            border: 2px solid #e3f2fd;
-            border-radius: 12px;
-            background: #fdfdfd;
-            font-size: 16px;
         }
 
         button {
             width: 100%;
-            padding: 18px;
-            background-color: #28a745;
-            color: #ffffff !important;
+            padding: 16px;
+            background: #28a745;
+            color: white;
             border: none;
-            border-radius: 15px;
-            cursor: pointer;
+            border-radius: 10px;
             font-size: 18px;
-            font-weight: 900;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
         }
 
-        /* カード風履歴のデザイン */
+        /* 解析カードデザイン */
         .log-card {
-            margin-top: 24px;
-            background: white;
-            border-radius: 20px;
+            margin-top: 20px;
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            animation: slideIn 0.5s ease-out;
+            background: white;
+            border: 1px solid #e2e8f0;
+            animation: slideUp 0.4s ease-out;
         }
 
         .card-header {
             padding: 12px 20px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-weight: bold;
+            font-size: 14px;
         }
 
+        /* 幸福度ゲージ */
+        .vital-gauge-bg {
+            width: 80px;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .vital-gauge-fill {
+            height: 100%;
+            background: #2c3e50;
+        }
+
+        /* グリッド背景 */
         .card-body {
-            padding: 20px;
-            min-height: 60px;
+            padding: 18px 20px;
+            background-color: #ffffff;
+            background-image: linear-gradient(#f0f4f8 1px, transparent 1px), linear-gradient(90deg, #f0f4f8 1px, transparent 1px);
+            background-size: 15px 15px;
+            font-size: 14px;
+            line-height: 1.6;
         }
 
         .card-footer {
             padding: 10px 20px;
-            background: #fafafa;
+            background: #f8fafc;
+            border-top: 1px solid #edf2f7;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-size: 11px;
-            border-top: 1px dashed #eee;
         }
 
         .share-btn {
             background: #007bff;
-            color: white !important;
+            color: white;
             padding: 4px 10px;
             border-radius: 6px;
             cursor: pointer;
-        }
-
-        .confetti {
-            position: fixed;
-            z-index: 9999;
-            pointer-events: none;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h2>🐾 さんぽ道マッピング</h2>
+        <h2>🐾 メンタル解析マップ</h2>
 
         <div id="brain-advisor">
             <div id="char-icon">🤖</div>
             <div>
-                <div id="badge-area">【散歩ビギナー】</div>
-                <div id="ai-message">君の今日の脳内をスキャンする準備はできているよ。</div>
+                <div id="badge-area">【システム正常稼働中】</div>
+                <div id="ai-message">脳内データのスキャン準備が整いました。</div>
             </div>
         </div>
 
-        <input type="text" id="place" placeholder="どこを歩いた？">
-        <textarea id="memo" placeholder="その時、脳内では何を考えていた？" rows="3"></textarea>
+        <input type="text" id="place" placeholder="観測地点（どこを歩いた？）">
 
-        <div style="margin-top: 10px; margin-bottom: 20px;">
-            <label style="display: block; margin-bottom: 8px; font-weight: bold;">
-                😊 脳内幸福度: <span id="happyNum">50</span>%
-            </label>
-            <input type="range" id="happiness" min="1" max="100" value="50" oninput="updateHappyNum(this.value)"
-                style="width: 100%;">
+        <div class="tag-container" id="tagList">
+            <span class="status-tag" onclick="toggleTag(this)">#集中</span>
+            <span class="status-tag" onclick="toggleTag(this)">#リラックス</span>
+            <span class="status-tag" onclick="toggleTag(this)">#アイデア</span>
+            <span class="status-tag" onclick="toggleTag(this)">#モヤモヤ</span>
+            <span class="status-tag" onclick="toggleTag(this)">#疲労</span>
         </div>
 
-        <button onclick="addLog()">脳内データを記録する</button>
+        <textarea id="memo" placeholder="解析ログ：脳内での思考内容を入力..." rows="3"></textarea>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: bold;">
+                🧠 幸福度バイタル: <span id="happyNum">50</span>%
+            </label>
+            <input type="range" id="happiness" min="1" max="100" value="50"
+                oninput="document.getElementById('happyNum').innerText=this.value" style="width: 100%;">
+        </div>
+
+        <button onclick="addLog()">脳内データを解析・保存</button>
 
         <div id="list"></div>
     </div>
 
     <script>
-        // 数値の更新
-        function updateHappyNum(val) {
-            document.getElementById("happyNum").innerText = val;
-        }
+        function toggleTag(el) { el.classList.toggle('active'); }
 
-        // 初期表示
-        window.onload = function () {
-            const savedPlace = localStorage.getItem("LastPlace");
-            if (savedPlace) {
-                document.getElementById('badge-area').innerText = "【脳内スキャン・エンジニア】";
-            }
-        };
-
-        // メイン機能
         function addLog() {
             const p = document.getElementById('place').value;
             const m = document.getElementById('memo').value;
-            const h = parseInt(document.getElementById("happiness").value);
+            const h = document.getElementById("happiness").value;
+            const tags = Array.from(document.querySelectorAll('.status-tag.active')).map(t => t.innerText).join(' ');
 
-            if (!p) return alert("場所を入力してください");
+            if (!p) return alert("観測地点を入力してください");
 
-            // 演出：光
-            document.body.classList.add("flash");
-            setTimeout(() => document.body.classList.remove("flash"), 300);
-
-            // 演出：紙吹雪
-            for (let i = 0; i < 15; i++) {
-                createConfetti();
-            }
-
-            // AI更新
-            let advice = ""; let icon = "🤖";
-            if (h >= 80) { advice = "最高だ！ニューロンが活性化しているよ！"; icon = "🤩"; }
-            else if (h >= 50) { advice = "いい調子。思考がクリアだね。"; icon = "😊"; }
-            else { advice = "お疲れ様。書くことで脳が軽くなるよ。"; icon = "🍀"; }
-            document.getElementById('ai-message').innerText = advice;
-            document.getElementById('char-icon').innerText = icon;
-            document.getElementById('badge-area').innerText = "【脳内スキャン・シニア】";
-
+            // 保存
             localStorage.setItem("LastPlace", p);
 
+            // AIメッセージ更新
+            let advice = h >= 80 ? "ニューロンの活性化を確認。素晴らしい。" : h >= 50 ? "安定した波形です。継続してください。" : "負荷を検知。書き出しによるデバッグを推奨。";
+            document.getElementById('ai-message').innerText = advice;
+            document.getElementById('char-icon').innerText = h >= 80 ? "🤩" : h >= 50 ? "😊" : "🍀";
+
+            // 色判定
+            const color = h >= 80 ? "#fff176" : h >= 50 ? "#a5d6a7" : "#cbd5e0";
+
             // カード生成
-            const color = (h >= 80) ? "#fff176" : (h >= 50) ? "#a5d6a7" : "#eeeeee";
             const card = document.createElement('div');
             card.className = 'log-card';
             card.innerHTML = `
                 <div class="card-header" style="background-color: ${color}">
                     <span>📍 ${p}</span>
-                    <span>Score: ${h}%</span>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div class="vital-gauge-bg"><div class="vital-gauge-fill" style="width:${h}%"></div></div>
+                        <span>${h}%</span>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <p style="margin:0;">${m || "（思考データなし）"}</p>
+                    <div style="color:#007bff; font-size:10px; margin-bottom:5px; font-weight:bold;">${tags}</div>
+                    <p style="margin:0;">${m || "（思考ログなし）"}</p>
                 </div>
                 <div class="card-footer">
                     <span>${new Date().toLocaleString()}</span>
-                    <div class="share-btn" onclick="shareContent('${p}', ${h}, '${m}')">脳内を共有</div>
+                    <div class="share-btn" onclick="share('${p}', ${h}, '${m}', '${tags}')">データ共有</div>
                 </div>
             `;
+
             document.getElementById('list').prepend(card);
 
             // リセット
             document.getElementById('place').value = "";
             document.getElementById('memo').value = "";
-            document.getElementById('happiness').value = 50;
-            document.getElementById('happyNum').innerText = 50;
-        } // ← addLogはここで終わり！
-
-        // 紙吹雪機能（独立した関数）
-        function createConfetti() {
-            const confetti = document.createElement('div');
-            confetti.className = 'confetti';
-            confetti.innerText = ['✨', '🔵', '⚪', '🔹'][Math.floor(Math.random() * 4)];
-            confetti.style.left = Math.random() * 100 + "vw";
-            confetti.style.top = "100vh";
-            confetti.style.fontSize = Math.random() * 20 + 10 + "px";
-            confetti.style.transition = "transform 2s ease-out, opacity 2s";
-            document.body.appendChild(confetti);
-            setTimeout(() => {
-                confetti.style.transform = `translateY(-110vh) rotate(${Math.random() * 360}deg)`;
-                confetti.style.opacity = "0";
-            }, 10);
-            setTimeout(() => confetti.remove(), 2000);
+            document.querySelectorAll('.status-tag').forEach(t => t.classList.remove('active'));
         }
 
-        // 共有機能（独立した関数）
-        function shareContent(place, score, memo) {
-            const text = `【さんぽ道マッピング】\n📍場所: ${place}\n😊幸福度: ${score}%\n🧠思考: ${memo}\n#散歩脳 #脳内スキャン`;
-            navigator.clipboard.writeText(text).then(() => {
-                alert("脳内データをコピーしました！");
-            });
+        function share(p, h, m, t) {
+            const text = `【メンタル解析マップ】\n地点: ${p}\n幸福度: ${h}%\n状態: ${t}\n内容: ${m}\n#散歩脳 #エンジニアメンタル`;
+            navigator.clipboard.writeText(text).then(() => alert("解析データをコピーしました。"));
         }
     </script>
 </body>
