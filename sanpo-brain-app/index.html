@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>散歩脳 - 日本語タグ版</title>
+    <title>散歩脳 - グラフ連動版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -80,7 +80,6 @@
             transition: 0.2s;
             background: white;
         }
-        /* 選択中の色（青系に統一） */
         .tag.active {
             color: var(--white);
             background-color: #5a7fee;
@@ -130,7 +129,6 @@
         .card-body { padding: 15px; }
         .item-time { color: #888; font-size: 12px; margin-bottom: 5px; }
 
-        /* カードの背景色（data-typeに合わせて指定） */
         .archive-item[data-style="joy"] .card-header { background-color: var(--tag-joy); color: #333; }
         .archive-item[data-style="relax"] .card-header { background-color: var(--tag-relax); }
         .archive-item[data-style="concentration"] .card-header { background-color: var(--tag-concentration); }
@@ -170,7 +168,7 @@
 
                 <div class="form-group">
                     <label>思考内容</label>
-                    <textarea id="memoText">今日の散歩で考えたこと...</textarea>
+                    <textarea id="memoText">いい気分だ！</textarea>
                 </div>
 
                 <div class="form-group">
@@ -183,7 +181,7 @@
             </div>
 
             <div class="panel">
-                <div style="font-weight: bold; margin-bottom: 10px;">🧠 メンタル推移</div>
+                <div style="font-weight: bold; margin-bottom: 10px;">🧠 メンタル推移（リアルタイム連動）</div>
                 <div style="height: 150px;"><canvas id="mentalChart"></canvas></div>
             </div>
         </div>
@@ -197,36 +195,47 @@
     </div>
 
     <script>
-        // タグ切り替え
+        // --- タグ切り替え ---
         const tags = document.querySelectorAll('.tag');
         tags.forEach(t => t.addEventListener('click', () => {
             tags.forEach(tag => tag.classList.remove('active'));
             t.classList.add('active');
         }));
 
-        // スライダー連動
+        // --- スライダー連動 ---
         const slider = document.getElementById('happinessSlider');
         slider.addEventListener('input', () => {
             document.getElementById('happinessValue').textContent = slider.value + '%';
         });
 
-        // グラフ
+        // --- グラフの初期化 ---
         const ctx = document.getElementById('mentalChart').getContext('2d');
-        new Chart(ctx, {
+        const mentalChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: Array.from({length: 10}, (_, i) => i + 1),
+                labels: Array.from({length: 20}, (_, i) => i + 1), // 20回分のデータ枠
                 datasets: [{
-                    data: [60, 75, 70, 85, 80, 90, 85, 95, 80, 85],
+                    label: '幸福度',
+                    data: Array.from({length: 20}, () => 50), // 初期値は全部50
                     borderColor: '#4169E1',
+                    backgroundColor: 'rgba(65, 105, 225, 0.1)',
+                    fill: true,
                     tension: 0.4,
-                    pointRadius: 0
+                    pointRadius: 3,
+                    pointBackgroundColor: '#4169E1'
                 }]
             },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { min: 0, max: 100 } // 0~100で固定
+                }
+            }
         });
 
-        // ぽわぽわ演出
+        // --- ぽわぽわ演出 ---
         const createParticle = () => {
             const p = document.createElement('div');
             p.classList.add('particle');
@@ -244,24 +253,24 @@
             setTimeout(() => p.remove(), 1500);
         };
 
-        // 記録ボタン
+        // --- 記録ボタン（アーカイブ追加 ＋ グラフ更新） ---
         document.getElementById('recordBtn').addEventListener('click', () => {
             const location = document.getElementById('walkLocation').value;
             const memo = document.getElementById('memoText').value;
-            const happiness = document.getElementById('happinessSlider').value;
+            const happiness = parseInt(document.getElementById('happinessSlider').value); // 数値として取得
             
-            // 選択されているタグの「テキスト」を取得
             const activeTag = document.querySelector('.tag.active');
-            const tagName = activeTag.textContent; // "#楽しい" などを取得
-            const styleType = activeTag.getAttribute('data-style'); // 色分け用
+            const tagName = activeTag.textContent;
+            const styleType = activeTag.getAttribute('data-style');
 
             const now = new Date();
             const timeString = `${now.getMonth() + 1}/${now.getDate()} ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
 
+            // 1. アーカイブへの追加
             const list = document.getElementById('archiveList');
             const item = document.createElement('div');
             item.className = 'archive-item';
-            item.setAttribute('data-style', styleType); // CSSで色を当てる用
+            item.setAttribute('data-style', styleType);
             item.innerHTML = `
                 <div class="card-header">
                     <div>📍 ${location}</div>
@@ -272,9 +281,17 @@
                     <div class="memo-content">${memo}</div>
                 </div>
             `;
-
             list.prepend(item);
 
+            // 2. グラフの更新
+            // データを末尾に追加
+            mentalChart.data.datasets[0].data.push(happiness);
+            // 古いデータを1つ削除して、常に一定の件数にする
+            mentalChart.data.datasets[0].data.shift();
+            // グラフを再描画
+            mentalChart.update();
+
+            // 3. 演出
             for(let i=0; i<15; i++) setTimeout(createParticle, i * 30);
             
             const btn = document.getElementById('recordBtn');
