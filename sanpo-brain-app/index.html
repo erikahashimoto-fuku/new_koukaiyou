@@ -117,38 +117,56 @@
 
 
         function addLog() {
+            function addLog() {
+            // 1. 入力値を取得
             const p = document.getElementById('place').value;
             const m = document.getElementById('memo').value;
             const h = document.getElementById("happiness").value;
 
+            // 場所が入っていないときはストップ
             if (!p) return alert("場所を入れてね");
+
+            // 2. 演出：画面を一瞬光らせる
+            document.body.classList.add("flash");
+            setTimeout(() => {
+                document.body.classList.remove("flash");
+            }, 300);
+
+            // 3. 保存
             localStorage.setItem("LastPlace", p);
             localStorage.setItem("LastHappy", h);
 
+            // 4. 幸福度によって色を決める
+            let color = "";
+            if (h >= 80) {
+                color = "#ffeb3b"; // 黄色
+            } else if (h >= 50) {
+                color = "#81c784"; // 緑
+            } else {
+                color = "#90a4ae"; // グレー
+            }
 
+            // 5. 【重要】箱を作るのは「ここ一回だけ」！
             const div = document.createElement('div');
             div.className = 'log';
+            
+            // 色とデザインを適用
+            div.style.backgroundColor = color;
+            div.style.padding = "10px";
+            div.style.borderRadius = "8px";
+            div.style.marginTop = "15px";
+
+            // 中身を書き込む
             div.innerHTML = `<strong>${new Date().toLocaleString()}</strong><br>📍 ${p} (幸福度: ${h}%)<p>${m}</p>`;
 
+            // 6. 画面の一番上に追加
             document.getElementById('list').prepend(div);
 
+            // 7. 入力欄をリセット
             document.getElementById('place').value = "";
             document.getElementById('memo').value = "";
             document.getElementById('happiness').value = 50;
             document.getElementById('happyNum').innerText = 50;
-            let color = "";
-            if (h >= 80) color = "#ffeb3b"; // キラキライエロー
-            else if (h >= 50) color = "#81c784"; // 穏やかなグリーン
-            else color = "#90a4ae"; // どんよりグレー
-
-            const div = document.createElement('div');
-            div.className = 'log';
-            div.style.backgroundColor = color; //
-
-
-
-
-
         }
     </script>
 </body>
