@@ -3,42 +3,32 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>散歩記録アプリ</title>
+    <title>Sanpo-Brain | エンジニアの脳内スキャン</title>
     <style>
-        /* アニメーション */
+        /* アニメーション設定 */
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes flashEffect {
-            0% {
-                background-color: #e3f2fd;
-            }
-
-            50% {
-                background-color: #ffffff;
-            }
-
-            100% {
-                background-color: #e3f2fd;
-            }
+            0% { background-color: #e3f2fd; }
+            50% { background-color: #ffffff; }
+            100% { background-color: #e3f2fd; }
         }
 
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* 全体デザイン */
         body {
-            background-color: #ffffff;
-            /* 背景は真っ白 */
+            background-color: #f8f9fa;
             color: #000000;
-            /* 文字は真っ黒 */
             font-family: 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
             padding: 20px;
+            transition: background-color 0.3s;
         }
 
         .flash {
@@ -51,61 +41,89 @@
             border-radius: 20px;
             max-width: 420px;
             margin: auto;
-            /* 影も灰色ではなく、薄い青にして清潔感を出しました */
             box-shadow: 0 10px 30px rgba(0, 123, 255, 0.1);
             border: 1px solid #e3f2fd;
         }
 
-        /* 散歩記録バナー：灰色を消して「鮮やかな青」にしました */
+        /* タイトルバナー */
         h2 {
             text-align: center;
-            background-color: #007bff;
-            /* 鮮やかなブルー */
+            background-color: #007bff; /* Findyブルーをイメージ */
             color: #ffffff !important;
-            /* 文字は白抜きでハッキリ */
             padding: 15px;
             border-radius: 12px;
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 900;
-            margin-bottom: 25px;
+            margin-top: 0;
+            margin-bottom: 20px;
             box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
         }
 
-        input,
-        textarea {
+        /* AIアドバイザーエリア */
+        #brain-advisor {
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            border-left: 5px solid #007bff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        #char-icon {
+            font-size: 40px;
+            margin-right: 15px;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        #badge-area {
+            font-size: 11px;
+            font-weight: bold;
+            color: #ff007f; /* Findyのアクセントカラー風 */
+            margin-bottom: 3px;
+        }
+
+        #ai-message {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        /* 入力エリア */
+        input, textarea {
             width: 100%;
             margin-bottom: 15px;
             padding: 15px;
             box-sizing: border-box;
-            border: 2px solid #007bff;
-            /* 枠線も青に */
-            border-radius: 15px;
-            background: #ffffff;
+            border: 2px solid #e3f2fd;
+            border-radius: 12px;
+            background: #fdfdfd;
             font-size: 16px;
             color: #000000;
             transition: 0.3s;
         }
 
-        input:focus,
-        textarea:focus {
+        input:focus, textarea:focus {
             outline: none;
-            box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+            border-color: #007bff;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.1);
         }
 
-        /* 記録ボタン：灰色を消して「鮮やかな緑」にしました */
+        /* 保存ボタン */
         button {
             width: 100%;
             padding: 18px;
-            background-color: #28a745;
-            /* 鮮やかな成功のグリーン */
+            background-color: #28a745; /* 成功のグリーン */
             color: #ffffff !important;
-            /* 文字は白抜きで太く */
             border: none;
             border-radius: 15px;
             cursor: pointer;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 900;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             transition: 0.3s;
             box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
@@ -115,110 +133,159 @@
             transform: translateY(-2px);
         }
 
+        /* 履歴カード */
         .log {
-            margin-top: 25px;
+            margin-top: 20px;
             padding: 20px;
             border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             color: #000000 !important;
             font-weight: bold;
-            animation: slideIn 0.5s ease-out;
+            animation: slideIn 0.4s ease-out;
+            position: relative;
+        }
+
+        .log-date {
+            font-size: 12px;
+            color: #555;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* 紙吹雪の破片 */
+        .confetti {
+            position: fixed;
+            z-index: 9999;
+            pointer-events: none;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h2>🐾 散歩記録</h2>
+        <h2>🐾 Sanpo-Brain</h2>
 
-        <body>
-            <div class="container">
-                <h2>🐾 散歩記録</h2>
-
-                <div id="brain-advisor"
-                    style="background: #f0f7ff; padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 2px solid #007bff; display: flex; align-items: center; position: relative;">
-                    <div style="font-size: 40px; margin-right: 15px;" id="char-icon">🤖</div>
-                    <div>
-                        <div id="badge-area"
-                            style="font-size: 10px; font-weight: bold; color: #28a745; margin-bottom: 5px;">【散歩ビギナー】
-                        </div>
-                        <div id="ai-message" style="font-size: 14px; font-weight: bold; color: #333;">
-                            「スキャン準備完了！今日の君の脳内を教えてくれ！」</div>
-                    </div>
-                </div>
-                <input type="text" id="place" placeholder="どこを歩いた？">
-                ...
-
-                <input type="text" id="place" placeholder="どこを歩いた？">
-                <textarea id="memo" placeholder="感想など"></textarea>
-
-                <div style="margin-top: 15px; margin-bottom: 15px;">
-                    <label for="happiness"
-                        style="display: block; margin-bottom: 8px; font-weight: bold; color: #007bff;">
-                        😊 今日の幸福度: <span id="happyNum">50</span>%
-                    </label>
-                    <input type="range" id="happiness" min="1" max="100" value="50" oninput="updateHappyNum(this.value)"
-                        style="width: 100%;">
-                </div>
-
-                <button onclick="addLog()">記録を保存する</button>
-
-                <div id="list"></div>
+        <div id="brain-advisor">
+            <div id="char-icon">🤖</div>
+            <div>
+                <div id="badge-area">【散歩ビギナー】</div>
+                <div id="ai-message">君の今日の脳内をスキャンする準備はできているよ。</div>
             </div>
+        </div>
 
-            <script>
-                function updateHappyNum(val) {
-                    document.getElementById("happyNum").innerText = val;
-                }
+        <input type="text" id="place" placeholder="どこを歩いた？">
+        <textarea id="memo" placeholder="その時、脳内では何を考えていた？" rows="3"></textarea>
+        
+        <div style="margin-top: 10px; margin-bottom: 20px;">
+            <label for="happiness" style="display: block; margin-bottom: 8px; font-weight: bold;">
+                😊 脳内幸福度: <span id="happyNum">50</span>%
+            </label>
+            <input type="range" id="happiness" min="1" max="100" value="50" oninput="updateHappyNum(this.value)" style="width: 100%; cursor: pointer;">
+        </div>
 
-                window.onload = function () {
-                    const savedPlace = localStorage.getItem("LastPlace");
-                    if (savedPlace) {
-                        const div = document.createElement("div");
-                        div.className = "log";
-                        div.style.backgroundColor = "#e3f2fd";
-                        div.style.border = "2px solid #007bff";
-                        div.innerHTML = "<strong>(前回の脳内記録)</strong><br> 📍 " + savedPlace;
-                        document.getElementById("list").prepend(div);
-                    }
-                };
+        <button onclick="addLog()">脳内データを記録する</button>
+        
+        <div id="list"></div>
+    </div>
 
-                function addLog() {
-                    const p = document.getElementById('place').value;
-                    const m = document.getElementById('memo').value;
-                    const h = document.getElementById("happiness").value;
+    <script>
+        // 数値のリアルタイム更新
+        function updateHappyNum(val) {
+            document.getElementById("happyNum").innerText = val;
+        }
 
-                    if (!p) return alert("場所を入力してください");
+        // ページ読み込み時に前回の場所を表示
+        window.onload = function() {
+            const savedPlace = localStorage.getItem("LastPlace");
+            if (savedPlace) {
+                const div = document.createElement("div");
+                div.className = "log";
+                div.style.backgroundColor = "#ffffff";
+                div.style.border = "2px solid #007bff";
+                div.innerHTML = `<span class="log-date">前回の同期データ</span><strong>📍 ${savedPlace}</strong>`;
+                document.getElementById("list").prepend(div);
+                
+                // バッジを少し昇進させる
+                document.getElementById('badge-area').innerText = "【脳内スキャン・エンジニア】";
+            }
+        };
 
-                    document.body.classList.add("flash");
-                    setTimeout(() => document.body.classList.remove("flash"), 300);
+        // メイン機能
+        function addLog() {
+            const p = document.getElementById('place').value;
+            const m = document.getElementById('memo').value;
+            const h = parseInt(document.getElementById("happiness").value);
 
-                    localStorage.setItem("LastPlace", p);
+            if (!p) return alert("場所を入力してください");
 
-                    let color = "";
-                    if (h >= 80) color = "#fff176"; // 鮮やかな黄
-                    else if (h >= 50) color = "#a5d6a7"; // 鮮やかな緑
-                    else color = "#eeeeee"; // 落ち着いた白に近いグレー
+            // --- 1. 演出（フラッシュ ＆ 紙吹雪） ---
+            document.body.classList.add("flash");
+            setTimeout(() => document.body.classList.remove("flash"), 300);
 
-                    const div = document.createElement('div');
-                    div.className = 'log';
-                    div.style.backgroundColor = color;
-                    div.style.color = "#000000";
+            for (let i = 0; i < 15; i++) {
+                createConfetti();
+            }
 
-                    div.innerHTML = `
-                <strong>${new Date().toLocaleString()}</strong><br>
-                📍 ${p} (幸福度: ${h}%)
-                <p style="margin-top: 10px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 5px;">${m}</p>
+            // --- 2. キャラクターとアドバイスの更新 ---
+            let advice = "";
+            let icon = "🤖";
+            if (h >= 80) {
+                advice = "最高だ！君の脳内ニューロンが活性化しているよ！";
+                icon = "🤩";
+            } else if (h >= 50) {
+                advice = "いい調子。散歩によって思考がクリアになっているね。";
+                icon = "😊";
+            } else {
+                advice = "少しお疲れかな？データを書き出すことで脳は軽くなるよ。";
+                icon = "🍀";
+            }
+            document.getElementById('ai-message').innerText = advice;
+            document.getElementById('char-icon').innerText = icon;
+            document.getElementById('badge-area').innerText = "【脳内スキャン・シニア】";
+
+            // --- 3. データの保存と表示 ---
+            localStorage.setItem("LastPlace", p);
+
+            const color = (h >= 80) ? "#fff176" : (h >= 50) ? "#a5d6a7" : "#eeeeee";
+            const div = document.createElement('div');
+            div.className = 'log';
+            div.style.backgroundColor = color;
+
+            div.innerHTML = `
+                <span class="log-date">${new Date().toLocaleString()}</span>
+                <strong>📍 ${p}</strong> (幸福度: ${h}%)
+                <p style="margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 8px; font-weight: normal;">${m}</p>
             `;
 
-                    document.getElementById('list').prepend(div);
+            document.getElementById('list').prepend(div);
 
-                    document.getElementById('place').value = "";
-                    document.getElementById('memo').value = "";
-                    document.getElementById('happiness').value = 50;
-                    document.getElementById('happyNum').innerText = 50;
-                }
-            </script>
-        </body>
+            // リセット
+            document.getElementById('place').value = "";
+            document.getElementById('memo').value = "";
+            document.getElementById('happiness').value = 50;
+            document.getElementById('happyNum').innerText = 50;
+        }
+
+        // 紙吹雪を作る関数
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.innerText = ['✨', '🔵', '⚪', '🔹'][Math.floor(Math.random() * 4)];
+            confetti.style.left = Math.random() * 100 + "vw";
+            confetti.style.top = "100vh";
+            confetti.style.fontSize = Math.random() * 20 + 10 + "px";
+            confetti.style.transition = "transform 2s ease-out, opacity 2s";
+            
+            document.body.appendChild(confetti);
+
+            setTimeout(() => {
+                confetti.style.transform = `translateY(-110vh) rotate(${Math.random() * 360}deg)`;
+                confetti.style.opacity = "0";
+            }, 10);
+
+            setTimeout(() => confetti.remove(), 2000);
+        }
+    </script>
+</body>
 
 </html>
