@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>散歩脳 - リアルタイム記録版</title>
+    <title>散歩脳 - 日本語タグ版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -41,7 +40,7 @@
             border-radius: 12px;
             padding: 25px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            position: relative;
+            position: relative; 
             z-index: 10;
         }
 
@@ -51,45 +50,27 @@
             gap: 20px;
         }
 
-        .app-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 2px solid #ddd;
-            padding-bottom: 10px;
-        }
-
         .form-group {
             display: flex;
             flex-direction: column;
             gap: 10px;
             margin-bottom: 15px;
         }
-
-        label {
-            font-weight: bold;
-        }
-
-        input[type="text"],
-        textarea {
+        label { font-weight: bold; }
+        input[type="text"], textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             box-sizing: border-box;
         }
-
-        textarea {
-            resize: vertical;
-            height: 80px;
-        }
+        textarea { resize: vertical; height: 80px; }
 
         .tag-group {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
         }
-
         .tag {
             border: 1px solid var(--border-color);
             padding: 6px 14px;
@@ -97,8 +78,9 @@
             cursor: pointer;
             font-size: 14px;
             transition: 0.2s;
+            background: white;
         }
-
+        /* 選択中の色（青系に統一） */
         .tag.active {
             color: var(--white);
             background-color: #5a7fee;
@@ -117,18 +99,15 @@
             align-self: flex-end;
         }
 
-        /* アーカイブのデザイン */
         .right-panel {
             overflow-y: auto;
             max-height: 85vh;
         }
-
         .archive-list {
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
-
         .archive-item {
             border-radius: 10px;
             overflow: hidden;
@@ -136,17 +115,9 @@
             background-color: white;
             animation: slideIn 0.3s ease-out;
         }
-
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .card-header {
@@ -156,36 +127,15 @@
             display: flex;
             justify-content: space-between;
         }
+        .card-body { padding: 15px; }
+        .item-time { color: #888; font-size: 12px; margin-bottom: 5px; }
 
-        .card-body {
-            padding: 15px;
-        }
+        /* カードの背景色（data-typeに合わせて指定） */
+        .archive-item[data-style="joy"] .card-header { background-color: var(--tag-joy); color: #333; }
+        .archive-item[data-style="relax"] .card-header { background-color: var(--tag-relax); }
+        .archive-item[data-style="concentration"] .card-header { background-color: var(--tag-concentration); }
+        .archive-item[data-style="fatigue"] .card-header { background-color: var(--tag-fatigue); }
 
-        .item-time {
-            color: #888;
-            font-size: 12px;
-            margin-bottom: 5px;
-        }
-
-        /* タグごとの色 */
-        .archive-item.joy .card-header {
-            background-color: var(--tag-joy);
-            color: #333;
-        }
-
-        .archive-item.relax .card-header {
-            background-color: var(--tag-relax);
-        }
-
-        .archive-item.concentration .card-header {
-            background-color: var(--tag-concentration);
-        }
-
-        .archive-item.fatigue .card-header {
-            background-color: var(--tag-fatigue);
-        }
-
-        /* ぽわぽわ（短縮版） */
         .particle {
             position: fixed;
             border-radius: 50%;
@@ -196,34 +146,31 @@
         }
     </style>
 </head>
-
 <body>
 
     <div class="container">
         <div class="left-panel">
             <div class="panel">
-                <div class="app-header">
-                    <div style="font-size: 20px; font-weight: bold;">🐾 散歩脳</div>
-                </div>
+                <div style="font-size: 20px; font-weight: bold; border-bottom: 2px solid #ddd; padding-bottom: 10px;">🐾 散歩脳</div>
 
                 <div class="form-group" style="margin-top: 15px;">
-                    <label>場所</label>
+                    <label>どこを歩いた？</label>
                     <input type="text" id="walkLocation" value="大崎">
                 </div>
 
                 <div class="form-group">
                     <label>気分</label>
                     <div class="tag-group">
-                        <span class="tag active" data-type="楽しい">#Joy</span>
-                        <span class="tag" data-type="リラックス">#Relax</span>
-                        <span class="tag" data-type="悩み中・・・">#Concentration</span>
-                        <span class="tag" data-type="わくわく！">#Fatigue</span>
+                        <span class="tag active" data-style="joy">#楽しい</span>
+                        <span class="tag" data-style="relax">#リラックス</span>
+                        <span class="tag" data-style="concentration">#悩み中・・・</span>
+                        <span class="tag" data-style="fatigue">#わくわく！</span>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>メモ</label>
-                    <textarea id="memoText">いいアイデアが浮かんだ！</textarea>
+                    <label>思考内容</label>
+                    <textarea id="memoText">今日の散歩で考えたこと...</textarea>
                 </div>
 
                 <div class="form-group">
@@ -243,35 +190,32 @@
 
         <div class="right-panel">
             <div class="panel">
-                <div
-                    style="font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">
-                    📦 履歴アーカイブ</div>
-                <div class="archive-list" id="archiveList">
-                </div>
+                <div style="font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">📦 履歴アーカイブ</div>
+                <div class="archive-list" id="archiveList"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- タグ切り替え ---
+        // タグ切り替え
         const tags = document.querySelectorAll('.tag');
         tags.forEach(t => t.addEventListener('click', () => {
             tags.forEach(tag => tag.classList.remove('active'));
             t.classList.add('active');
         }));
 
-        // --- スライダー連動 ---
+        // スライダー連動
         const slider = document.getElementById('happinessSlider');
         slider.addEventListener('input', () => {
             document.getElementById('happinessValue').textContent = slider.value + '%';
         });
 
-        // --- グラフ ---
+        // グラフ
         const ctx = document.getElementById('mentalChart').getContext('2d');
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: Array.from({ length: 10 }, (_, i) => i + 1),
+                labels: Array.from({length: 10}, (_, i) => i + 1),
                 datasets: [{
                     data: [60, 75, 70, 85, 80, 90, 85, 95, 80, 85],
                     borderColor: '#4169E1',
@@ -282,70 +226,61 @@
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
 
-        // --- ぽわぽわ演出（短縮） ---
+        // ぽわぽわ演出
         const createParticle = () => {
             const p = document.createElement('div');
             p.classList.add('particle');
-            p.style.backgroundColor = ['#FFD700', '#3CB371', '#4169E1', '#9370DB'][Math.floor(Math.random() * 4)];
+            p.style.backgroundColor = ['#FFD700', '#3CB371', '#4169E1', '#9370DB'][Math.floor(Math.random()*4)];
             const size = Math.random() * 15 + 5 + 'px';
             p.style.width = size; p.style.height = size;
             p.style.left = Math.random() * 100 + 'vw';
             p.style.top = Math.random() * 100 + 'vh';
             p.style.opacity = '0.7';
             document.body.appendChild(p);
-
             setTimeout(() => {
-                p.style.transform = `translate(${(Math.random() - 0.5) * 200}px, ${(Math.random() - 0.5) * 200}px)`;
+                p.style.transform = `translate(${(Math.random()-0.5)*200}px, ${(Math.random()-0.5)*200}px)`;
                 p.style.opacity = '0';
             }, 50);
             setTimeout(() => p.remove(), 1500);
         };
 
-        // --- 【重要】リアルタイム記録処理 ---
+        // 記録ボタン
         document.getElementById('recordBtn').addEventListener('click', () => {
-            // 1. データの取得
             const location = document.getElementById('walkLocation').value;
             const memo = document.getElementById('memoText').value;
             const happiness = document.getElementById('happinessSlider').value;
+            
+            // 選択されているタグの「テキスト」を取得
             const activeTag = document.querySelector('.tag.active');
-            const tagType = activeTag.getAttribute('data-type');
-            const tagName = activeTag.textContent;
+            const tagName = activeTag.textContent; // "#楽しい" などを取得
+            const styleType = activeTag.getAttribute('data-style'); // 色分け用
 
-            // 2. 現在時刻の作成
             const now = new Date();
             const timeString = `${now.getMonth() + 1}/${now.getDate()} ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
 
-            // 3. 追加するHTML要素の作成
             const list = document.getElementById('archiveList');
             const item = document.createElement('div');
-            item.className = `archive-item ${tagType}`;
+            item.className = 'archive-item';
+            item.setAttribute('data-style', styleType); // CSSで色を当てる用
             item.innerHTML = `
                 <div class="card-header">
                     <div>📍 ${location}</div>
                     <div>${happiness}%</div>
                 </div>
                 <div class="card-body">
-                    <div class="item-time">🕒 ${timeString} ${tagName}</div>
+                    <div class="item-time">🕒 ${timeString} 【${tagName}】</div>
                     <div class="memo-content">${memo}</div>
                 </div>
             `;
 
-            // 4. リストの先頭（一番上）に追加
             list.prepend(item);
 
-            // 5. 演出
-            for (let i = 0; i < 15; i++) setTimeout(createParticle, i * 30);
-
-            // 6. フィードバック
+            for(let i=0; i<15; i++) setTimeout(createParticle, i * 30);
+            
             const btn = document.getElementById('recordBtn');
             btn.textContent = '記録完了！';
-            btn.style.backgroundColor = '#2196F3';
-            setTimeout(() => {
-                btn.textContent = '記録する';
-                btn.style.backgroundColor = '#4CAF50';
-            }, 1500);
+            setTimeout(() => { btn.textContent = '記録する'; }, 1500);
         });
     </script>
 </body>
-
 </html>
