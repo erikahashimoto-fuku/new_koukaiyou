@@ -318,40 +318,51 @@
             div.className = 'log';
             div.style.backgroundColor = color;
 
+            // 5. 箱（カード）を作る
+            const div = document.createElement('div');
+            div.className = 'log-card'; // ここを log から log-card に変更
+
+            // カードの中身を組み立てる
             div.innerHTML = `
-                <span class="log-date">${new Date().toLocaleString()}</span>
-                <strong>📍 ${p}</strong> (幸福度: ${h}%)
-                <p style="margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 8px; font-weight: normal;">${m}</p>
+                <div class="card-header" style="background-color: ${color}">
+                    <span>📍 ${p}</span>
+                    <span>Score: ${h}%</span>
+                </div>
+                <div class="card-body">
+                    <p style="margin:0;">${m || "（思考データなし）"}</p>
+                </div>
+                <div class="card-footer">
+                    <span>${new Date().toLocaleString()}</span>
+                    <div class="share-btn" onclick="shareContent('${p}', ${h}, '${m}')">脳内を共有</div>
+                </div>
             `;
 
-            document.getElementById('list').prepend(div);
+            // 紙吹雪を作る関数
+            function createConfetti() {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.innerText = ['✨', '🔵', '⚪', '🔹'][Math.floor(Math.random() * 4)];
+                confetti.style.left = Math.random() * 100 + "vw";
+                confetti.style.top = "100vh";
+                confetti.style.fontSize = Math.random() * 20 + 10 + "px";
+                confetti.style.transition = "transform 2s ease-out, opacity 2s";
 
-            // リセット
-            document.getElementById('place').value = "";
-            document.getElementById('memo').value = "";
-            document.getElementById('happiness').value = 50;
-            document.getElementById('happyNum').innerText = 50;
-        }
+                document.body.appendChild(confetti);
 
-        // 紙吹雪を作る関数
-        function createConfetti() {
-            const confetti = document.createElement('div');
-            confetti.className = 'confetti';
-            confetti.innerText = ['✨', '🔵', '⚪', '🔹'][Math.floor(Math.random() * 4)];
-            confetti.style.left = Math.random() * 100 + "vw";
-            confetti.style.top = "100vh";
-            confetti.style.fontSize = Math.random() * 20 + 10 + "px";
-            confetti.style.transition = "transform 2s ease-out, opacity 2s";
+                setTimeout(() => {
+                    confetti.style.transform = `translateY(-110vh) rotate(${Math.random() * 360}deg)`;
+                    confetti.style.opacity = "0";
+                }, 10);
 
-            document.body.appendChild(confetti);
-
-            setTimeout(() => {
-                confetti.style.transform = `translateY(-110vh) rotate(${Math.random() * 360}deg)`;
-                confetti.style.opacity = "0";
-            }, 10);
-
-            setTimeout(() => confetti.remove(), 2000);
-        }
+                setTimeout(() => confetti.remove(), 2000);
+            }
+            // 共有ボタンを押した時の動き
+            function shareContent(place, score, memo) {
+                const text = `【さんぽ道マッピング】\n📍場所: ${place}\n😊幸福度: ${score}%\n🧠思考: ${memo}\n#散歩脳 #脳内スキャン`;
+                navigator.clipboard.writeText(text).then(() => {
+                    alert("脳内データをコピーしました！SNSに貼り付けてね！");
+                });
+            }
     </script>
 </body>
 
