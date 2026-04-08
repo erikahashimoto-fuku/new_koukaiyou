@@ -3,215 +3,163 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>散歩脳 - 歩数・時間記録版</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <title>散歩脳 - 記録重視版</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary-bg: #eef3ff;
+            --primary-bg: #f4f7f6;
             --white: #ffffff;
             --text-color: #333333;
             --tag-joy: #FFD700;
             --tag-relax: #3CB371;
             --tag-concentration: #4169E1;
             --tag-fatigue: #9370DB;
-            --border-color: #dddddd;
         }
 
         body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            margin: 0;
+            font-family: 'Meiryo', sans-serif;
             background-color: var(--primary-bg);
             color: var(--text-color);
-            overflow-x: hidden;
-            padding-bottom: 60px;
+            margin: 0;
+            padding: 20px;
         }
 
         .container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            padding: 10px;
-            max-width: 1200px;
+            max-width: 900px;
             margin: 0 auto;
-        }
-
-        @media (min-width: 768px) {
-            .container {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                padding: 20px;
-            }
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 20px;
         }
 
         .panel {
-            background-color: var(--white);
-            border-radius: 12px;
+            background: var(--white);
             padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            height: fit-content;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
         }
 
         .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
             margin-bottom: 15px;
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
         label {
+            display: block;
             font-weight: bold;
+            margin-bottom: 5px;
             font-size: 14px;
         }
 
-        input[type="text"],
-        input[type="number"],
+        input,
         textarea {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
+            padding: 8px;
             box-sizing: border-box;
-            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .form-row>div {
+            flex: 1;
         }
 
         .tag-group {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 5px;
         }
 
         .tag {
-            border: 1px solid var(--border-color);
-            padding: 10px 14px;
-            border-radius: 20px;
+            border: 1px solid #ddd;
+            padding: 5px 10px;
+            border-radius: 15px;
             cursor: pointer;
-            font-size: 13px;
-            background: white;
-            user-select: none;
+            font-size: 12px;
         }
 
         .tag.active {
-            color: var(--white);
-            background-color: #5a7fee;
+            background: #5a7fee;
+            color: white;
             border-color: #5a7fee;
         }
 
         .record-btn {
-            background-color: #4CAF50;
-            color: var(--white);
+            width: 100%;
+            padding: 12px;
+            background: #4CAF50;
+            color: white;
             border: none;
-            border-radius: 8px;
-            padding: 18px;
-            font-size: 16px;
+            border-radius: 5px;
             font-weight: bold;
             cursor: pointer;
-            width: 100%;
         }
 
-        .chart-container {
+        .chart-area {
             height: 200px;
-            position: relative;
-        }
-
-        .archive-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 10px;
+            margin-bottom: 20px;
         }
 
         .archive-item {
-            border-radius: 10px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 10px;
             overflow: hidden;
-            border: 1px solid var(--border-color);
-            background-color: white;
         }
 
-        .card-header {
-            padding: 10px 12px;
+        .item-head {
+            padding: 8px 12px;
             color: white;
-            font-weight: bold;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            font-weight: bold;
             font-size: 14px;
+        }
+
+        .item-body {
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+            color: #666;
+            font-size: 12px;
         }
 
         .delete-btn {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             cursor: pointer;
+            font-size: 16px;
         }
 
-        .card-body {
-            padding: 12px;
-        }
-
-        .item-time {
-            color: #888;
-            font-size: 11px;
-            margin-bottom: 8px;
-        }
-
-        .stats-badge-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
-
-        .stats-badge {
-            background: #f0f4f8;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            color: #555;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .memo-content {
-            font-size: 14px;
-            white-space: pre-wrap;
-            border-top: 1px dashed #eee;
-            padding-top: 8px;
-        }
-
-        .archive-item[data-style="joy"] .card-header {
+        /* 気分別カラー */
+        [data-style="joy"] .item-head {
             background-color: var(--tag-joy);
             color: #333;
         }
 
-        .archive-item[data-style="relax"] .card-header {
+        [data-style="relax"] .item-head {
             background-color: var(--tag-relax);
         }
 
-        .archive-item[data-style="concentration"] .card-header {
+        [data-style="concentration"] .item-head {
             background-color: var(--tag-concentration);
         }
 
-        .archive-item[data-style="fatigue"] .card-header {
+        [data-style="fatigue"] .item-head {
             background-color: var(--tag-fatigue);
-        }
-
-        .particle {
-            position: fixed;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 100;
-            transition: all 1.2s;
         }
     </style>
 </head>
@@ -220,10 +168,7 @@
 
     <div class="container">
         <div class="panel">
-            <div
-                style="font-size: 18px; font-weight: bold; border-bottom: 2px solid #ddd; padding-bottom: 8px; margin-bottom: 15px;">
-                🐾 散歩脳</div>
-
+            <h2>🐾 散歩の記録</h2>
             <div class="form-group">
                 <label>📍 場所</label>
                 <input type="text" id="walkLocation" value="品川">
@@ -245,30 +190,84 @@
                 <div class="tag-group" id="tagGroup">
                     <span class="tag active" data-style="joy">#楽しい</span>
                     <span class="tag" data-style="relax">#リラックス</span>
-                    <span class="tag" data-style="concentration">#悩み中・・・</span>
-                    <span class="tag" data-style="fatigue">#わくわく！</span>
+                    <span class="tag" data-style="concentration">#悩み中</span>
+                    <span class="tag" data-style="fatigue">#わくわく</span>
                 </div>
             </div>
 
             <div class="form-group">
                 <label>📝 メモ</label>
-                <textarea id="memoText" placeholder="何を感じた？"></textarea>
+                <textarea id="memoText" rows="3"></textarea>
             </div>
 
             <div class="form-group">
-                <label>😊 幸福度: <span id="happinessValue">80%</span></label>
-                <input type="range" id="happinessSlider" min="0" max="100" value="80" style="width:100%">
+                <label>😊 幸福度: <span id="happyValDisplay">80</span>%</label>
+                <input type="range" id="happySlider" min="0" max="100" value="80">
             </div>
 
-            <button class="record-btn" id="recordBtn">記録する</button>
-            <button id="clearBtn"
-                style="margin-top:20px; background:none; border:none; color:#ccc; font-size:10px; cursor:pointer; width:100%">データを全消去する</button>
+            <button class="record-btn" onclick="addRecord()">記録する</button>
+            <button onclick="clearData()"
+                style="margin-top:15px; border:none; background:none; color:#999; cursor:pointer; font-size:11px;">データを全消去</button>
         </div>
 
-        <div class="panel">
-            <div style="font-weight: bold; margin-bottom: 10px; font-size: 14px;">🧠 メンタル推移 (直近10件)</div>
-            <div class="chart-container"><canvas id="mentalChart"></canvas></div>
-        </div>
+        <div>
+            <div class="panel" style="margin-bottom: 20px;">
+                <h2>🧠 幸福度の推移</h2>
+                <div class="chart-area">
+                    <canvas id="mentalChart"></canvas>
+                </div>
+            </div>
 
-        <div class="panel">
-            <div style="font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 5px;
+            <div class="panel">
+                <h2>📦 履歴</h2>
+                <div id="archiveList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. 初期データ読み込み
+        let records = JSON.parse(localStorage.getItem('sampo_v3')) || [];
+        let mentalChart;
+
+        // 2. グラフ初期化
+        function initChart() {
+            const ctx = document.getElementById('mentalChart').getContext('2d');
+            mentalChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: records.slice(-10).map((_, i) => i + 1),
+                    datasets: [{
+                        data: records.slice(-10).map(r => r.happy),
+                        borderColor: '#4169E1',
+                        fill: false,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { min: 0, max: 100 } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // 3. 履歴の表示
+        function renderList() {
+            const listDiv = document.getElementById('archiveList');
+            listDiv.innerHTML = '';
+
+            // 新しい順に表示
+            records.slice().reverse().forEach((data, index) => {
+                const actualIndex = records.length - 1 - index;
+                const div = document.createElement('div');
+                div.className = 'archive-item';
+                div.setAttribute('data-style', data.style);
+                div.innerHTML = `
+                <div class="item-head">
+                    <span>📍 ${data.loc}</span>
+                    <span>${data.happy}% <span class="delete-btn" onclick="deleteRecord(${actualIndex})">×</span></span>
+                </div>
+                <div class="item-body">
+                    <div style="font
