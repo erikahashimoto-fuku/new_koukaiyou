@@ -1,208 +1,443 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8">
-    <title>散歩脳 | アーカイブダッシュボード</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>散歩脳 - localhost:8000</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* アニメーション */
-        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-        
-        /* 右方向へ飛んでいく演出 */
-        @keyframes flyToRight {
-            0% { transform: translate(0, 0) scale(1); opacity: 1; }
-            100% { transform: translate(400px, -50px) scale(0); opacity: 0; }
+        :root {
+            --primary-bg: #eef3ff; /* 薄い青の背景 */
+            --white: #ffffff;
+            --text-color: #333333;
+            --tag-joy: #FFD700; /* Joy: 金色 */
+            --tag-relax: #3CB371; /* Relax: ミディアムシーグリーン */
+            --tag-concentration: #4169E1; /* Concentration: ロイヤルブルー */
+            --tag-fatigue: #9370DB; /* Fatigue: ミディアムパープル */
+            --border-color: #dddddd;
         }
 
         body {
-            background-color: #f4f7f9;
-            color: #2c3e50;
-            font-family: 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
-            display: flex;
-            height: 100vh;
-            overflow: hidden; /* 全体はスクロールさせない */
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            overflow-x: hidden; /* ぽわぽわ演出のため */
+            position: relative; /* ぽわぽわ演出の基準 */
         }
 
-        /* --- 左右分割レイアウト --- */
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* パネル共通スタイル */
+        .panel {
+            background-color: var(--white);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            position: relative; /* アーカイブカード内の配置用 */
+            z-index: 10; /* ぽわぽわよりも前面に表示 */
+        }
+
+        /* 左パネル: 入力フォームとグラフ */
         .left-panel {
-            flex: 1;
-            padding: 40px;
-            overflow-y: auto;
-            border-right: 1px solid #d1d9e0;
-            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
+        /* 散歩脳ヘッダー */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .app-title {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        .ai-assist {
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            align-items: center;
+        }
+        .ai-assist span {
+            margin-left: 5px;
+        }
+
+        /* 入力フォーム共通 */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        textarea {
+            resize: vertical;
+            height: 100px;
+        }
+
+        /* タグ */
+        .tag-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .tag {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: #666;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .tag.active {
+            color: var(--white);
+            border-color: #5a7fee;
+            background-color: #5a7fee;
+        }
+
+        /* 幸福度 */
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .happiness-icon {
+            font-size: 24px;
+        }
+        input[type="range"] {
+            flex-grow: 1;
+        }
+        .happiness-value {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* 記録ボタン */
+        .record-btn {
+            background-color: #4CAF50; /* 緑 */
+            color: var(--white);
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            align-self: flex-end;
+            margin-top: 10px;
+        }
+
+        /* グラフパネル */
+        .graph-panel {
+            background-color: var(--white);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-top: 20px; /* bodyのグリッドギャップとは別に */
+            z-index: 10;
+        }
+        .graph-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        /* 右パネル: アーカイブ */
         .right-panel {
-            flex: 1;
-            padding: 40px;
             overflow-y: auto;
-            background: #f8fafc;
+            max-height: 800px; /* 必要に応じて調整 */
+        }
+        .archive-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .json-btn {
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            text-decoration: underline;
         }
 
-        h2, h3 { color: #007bff; margin-top: 0; }
-
-        /* 入力エリア（元のデザインを維持） */
-        .input-group { margin-bottom: 20px; }
-        input, textarea {
-            width: 100%; margin-bottom: 15px; padding: 12px; border: 1.5px solid #e2e8f0;
-            border-radius: 10px; font-size: 16px; box-sizing: border-box;
+        /* アーカイブカード */
+        .archive-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .archive-item {
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .archive-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            padding: 12px 15px;
+            color: var(--white);
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-body {
+            padding: 15px;
+            background-color: var(--white);
+        }
+        .memo-label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .memo-content {
+            font-size: 16px;
+            line-height: 1.4;
+            color: #333;
+        }
+        .item-vital {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 8px;
         }
 
-        .tag-container { margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 5px; }
-        .status-tag {
-            padding: 5px 12px; border-radius: 20px; font-size: 11px;
-            border: 1px solid #cbd5e0; background: #fff; cursor: pointer;
-        }
-        .status-tag.active { background: #007bff; color: white; border-color: #007bff; }
+        /* カードのカラーバリエーション */
+        .archive-item.joy .card-header { background-color: var(--tag-joy); }
+        .archive-item.relax .card-header { background-color: var(--tag-relax); color: #333; }
+        .archive-item.relax .card-header-icon { filter: brightness(0) invert(0); }
+        .archive-item.concentration .card-header { background-color: var(--tag-concentration); }
+        .archive-item.fatigue .card-header { background-color: var(--tag-fatigue); }
 
-        button {
-            width: 100%; padding: 16px; background: #28a745; color: white;
-            border: none; border-radius: 10px; font-size: 18px; font-weight: bold;
-            cursor: pointer; box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+        /* カード内のアイコン */
+        .card-header-icon {
+            font-size: 1.2em;
         }
 
-        /* 履歴カード（元のデザインベース） */
-        .log-card {
-            margin-bottom: 20px; border-radius: 15px; overflow: hidden;
-            background: white; border: 1px solid #e2e8f0; animation: slideIn 0.4s ease-out;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        /* カラー凡例パネル（近未来感のため追加） */
+        .legend-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid #ddd;
+            z-index: 5; /* ぽわぽわよりも後ろに表示 */
         }
-        .card-header { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 14px; }
-        .vital-gauge-bg { width: 60px; height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; overflow: hidden; }
-        .vital-gauge-fill { height: 100%; background: #000; }
-        .card-body { padding: 15px; font-size: 14px; line-height: 1.5; border-top: 1px solid #f0f0f0; }
-        .card-footer { padding: 10px 15px; background: #f8fafc; border-top: 1px solid #eee; display: flex; justify-content: space-between; font-size: 11px; }
-        
-        .delete-btn { color: #e53e3e; cursor: pointer; font-size: 14px; }
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+            text-align: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
 
-        /* 飛んでいく光の粒 */
+        /* --- ぽわぽわ演出用スタイル --- */
         .particle {
-            position: fixed; width: 10px; height: 10px; background: #007bff; border-radius: 50%;
-            pointer-events: none; z-index: 9999; box-shadow: 0 0 10px #007bff;
-            animation: flyToRight 0.8s ease-in forwards;
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 100; /* 最前面に表示 */
+            filter: blur(2px);
+            transition: opacity 1s, transform 3s ease-out;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.7); /* 柔らかい発光効果 */
         }
-    </style>
-</head>
-
-<body>
-    <div class="left-panel">
-        <h2>🐾 散歩脳</h2>
-        <p style="font-size: 13px; color: #666; margin-bottom: 30px;">散歩データとメンタルデータを可視化します</p>
-
-        <div class="input-group">
-            <input type="text" id="place" placeholder="どこを歩いた？">
-            <div class="tag-container">
-                <span class="status-tag" onclick="this.classList.toggle('active')">#集中</span>
-                <span class="status-tag" onclick="this.classList.toggle('active')">#リラックス</span>
-                <span class="status-tag" onclick="this.classList.toggle('active')">#アイデア</span>
-                <span class="status-tag" onclick="this.classList.toggle('active')">#脳内バグ</span>
-            </div>
-            <textarea id="memo" placeholder="思考内容を記録..." rows="4"></textarea>
-            
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 8px;">🧠 幸福度: <span id="happyNum">50</span>%</label>
-                <input type="range" id="happiness" min="1" max="100" value="50" oninput="document.getElementById('happyNum').innerText=this.value" style="width: 100%;">
-            </div>
-
-            <button onclick="addLog()" id="recordBtn">記録</button>
-        </div>
-    </div>
-
-    <div class="right-panel">
-        <h3>🗄️ アーカイブ履歴</h3>
-        <div id="list"></div>
-    </div>
-
-    <script>
-        // 読み込み時にデータを復元
-        window.onload = function() {
-            const savedLogs = JSON.parse(localStorage.getItem("MentalLogs") || "[]");
-            savedLogs.forEach(log => displayLog(log));
-        };
-
-        function addLog() {
-            const p = document.getElementById('place').value;
-            const m = document.getElementById('memo').value;
-            const h = document.getElementById("happiness").value;
-            const tags = Array.from(document.querySelectorAll('.status-tag.active')).map(t => t.innerText).join(' ');
-
-            if (!p) return alert("場所を入力してください");
-
-            // 演出：右側のパネルへ飛んでいく光
-            createParticles();
-
-            const newLog = {
-                id: Date.now(),
-                place: p,
-                memo: m,
-                happy: h,
-                tags: tags,
-                time: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString() 
-            };
-
-            const savedLogs = JSON.parse(localStorage.getItem("MentalLogs") || "[]");
-            savedLogs.push(newLog);
-            localStorage.setItem("MentalLogs", JSON.stringify(savedLogs));
-
-            // 演出に合わせて少し遅れて表示
-            setTimeout(() => {
-                displayLog(newLog);
-            }, 800);
-
-            // リセット
-            document.getElementById('place').value = "";
-            document.getElementById('memo').value = "";
-            document.querySelectorAll('.status-tag').forEach(t => t.classList.remove('active'));
+        .particle.active {
+            opacity: 0.8;
+            animation: moveAround 5s linear infinite;
         }
 
-        function displayLog(log) {
-            const color = log.happy >= 80 ? "#fff176" : log.happy >= 50 ? "#a5d6a7" : "#cbd5e0";
-            const card = document.createElement('div');
-            card.className = 'log-card';
-            card.id = `log-${log.id}`;
-            card.innerHTML = `
-                <div class="card-header" style="background-color: ${color}">
-                    <span>📍 ${log.place}</span>
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <div class="vital-gauge-bg"><div class="vital-gauge-fill" style="width:${log.happy}%"></div></div>
-                        <span>${log.happy}%</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div style="color:#007bff; font-size:10px; margin-bottom:5px; font-weight:bold;">${log.tags}</div>
-                    <p style="margin:0;">${log.memo || "..."}</p>
-                </div>
-                <div class="card-footer">
-                    <span>${log.time}</span>
-                    <span class="delete-btn" onclick="deleteLog(${log.id})">🗑️ 削除</span>
-                </div>
-            `;
-            document.getElementById('list').prepend(card);
-        }
-
-        // パーティクル（飛んでいく光）の生成
-        function createParticles() {
-            const btn = document.getElementById('recordBtn');
-            const rect = btn.getBoundingClientRect();
-            for (let i = 0; i < 6; i++) {
-                const p = document.createElement('div');
-                p.className = 'particle';
-                p.style.left = (rect.left + rect.width / 2) + "px";
-                p.style.top = rect.top + "px";
-                p.style.animationDelay = (i * 0.1) + "s";
-                document.body.appendChild(p);
-                setTimeout(() => p.remove(), 1000);
+        /* ぽわぽわが漂うアニメーション */
+        @keyframes moveAround {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            25% {
+                transform: translate(-30vw, 20vh) scale(1.1);
+            }
+            50% {
+                transform: translate(20vw, -30vh) scale(0.9);
+            }
+            75% {
+                transform: translate(30vw, 30vh) scale(1.05);
             }
         }
 
-        function deleteLog(id) {
-            if(!confirm("削除しますか？")) return;
-            let savedLogs = JSON.parse(localStorage.getItem("MentalLogs") || "[]");
-            savedLogs = savedLogs.filter(log => log.id !== id);
-            localStorage.setItem("MentalLogs", JSON.stringify(savedLogs));
-            document.getElementById(`log-${id}`).remove();
-        }
-    </script>
-</body>
-</html>
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="left-panel">
+            <div class="panel">
+                <div class="app-header">
+                    <div class="app-title">🐾 散歩脳 🤖</div>
+                    <div class="ai-assist">
+                        ✨ <span>AI アシスポット</span>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>どこを歩いた？</label>
+                    <input type="text" id="walkLocation" placeholder="（大崎）" value="大崎">
+                </div>
+
+                <div class="form-group">
+                    <label>タグを選択（カラー別）</label>
+                    <div class="tag-group">
+                        <span class="tag" style="border-color: var(--tag-joy);" data-type="joy">#Joy</span>
+                        <span class="tag active" style="border-color: var(--tag-relax);" data-type="relax">#Relax</span>
+                        <span class="tag" style="border-color: var(--tag-concentration);" data-type="concentration">#Concentration</span>
+                        <span class="tag" style="border-color: var(--tag-fatigue);" data-type="fatigue">#Fatigue</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>思考内容を記録...</label>
+                    <textarea id="memoText" placeholder="考えたことを自由に書いてください...">ああああああああああ</textarea>
+                </div>
+
+                <div class="form-group slider-group">
+                    <span class="happiness-icon">😊</span>
+                    <label>幸福度:</label>
+                    <input type="range" id="happinessSlider" min="0" max="100" value="98">
+                    <span class="happiness-value" id="happinessValue">98%</span>
+                </div>
+
+                <button class="record-btn" id="recordBtn">記録</button>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="panel">
+                <div class="archive-header">
+                    <div class="app-title">📦 アーカイブ履歴</div>
+                    <div class="json-btn">JSON書出し</div>
+                </div>
+
+                <div class="archive-list" id="archiveList">
+                    <div class="archive-item joy">
+                        <div class="card-header">
+                            <div>📍 大崎</div>
+                            <div>Score: 幸福度 98% <span class="card-header-icon">😊</span></div>
+                        </div>
+                        <div class="card-body">
+                            <div class="memo-label">Memo:</div>
+                            <div class="memo-content">ああああああああああ</div>
+                        </div>
+                    </div>
+                    <div class="archive-item relax">
+                        <div class="card-header">
+                            <div>📍 目黒</div>
+                            <div>Score: 幸福度 72% <span class="card-header-icon">😊</span></div>
+                        </div>
+                        <div class="card-body">
+                            <div class="item-vital">Vital: 2020-02</div>
+                            <div class="memo-label">Memo:</div>
+                            <div class="memo-content">ああああああああああああああ</div>
+                        </div>
+                    </div>
+                    <div class="archive-item concentration">
+                        <div class="card-header">
+                            <div>📍 品川</div>
+                            <div>Score: 幸福度 45% <span class="card-header-icon">😊</span></div>
+                        </div>
+                        <div class="card-body">
+                            <div class="item-vital">Vital: 2020-10</div>
+                            <div class="memo-label">Memo:</div>
+                            <div class="memo-content">あああああああ</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="graph-panel max-width-container" style="max-width: 1200px; margin: 20px auto;">
+        <div class="graph-header">
+            <span>🧠</span> メンタルグラフ（過去30日間）
+        </div>
+        <canvas id="mentalChart" height="100"></canvas>
+    </div>
+
+    <div class="legend-panel">
+        <div class="legend-title">メンタルカラー</div>
+        <div class="legend-item"><div class="legend-color" style="background-color: var(--tag-joy);"></div>Joy</div>
+        <div class="legend-item"><div class="legend-color" style="background-color: var(--tag-relax);"></div>Relax</div>
+        <div class="legend-item"><div class="legend-color" style="background-color: var(--tag-concentration);"></div>Concentration</div>
+        <div class="legend-item"><div class="legend-color" style="background-color: var(--tag-fatigue);"></div>Fatigue</div>
+    </div>
+
+    <script>
+        // --- 1. タグの選択ロジック ---
+        const tags = document.querySelectorAll('.tag');
+        tags.forEach(tag => {
+            tag.addEventListener('click', () => {
+                tags.forEach(t => t.classList.remove('active'));
+                tag.classList.add('active');
+            });
+        });
+
+        // --- 2. 幸福度スライダーの値更新 ---
+        const slider = document.getElementById('happinessSlider');
+        const valueDisplay = document.getElementById('happinessValue');
+        slider.addEventListener('input', () => {
+            valueDisplay.textContent = slider.value + '%';
+        });
+
+        // --- 3. Chart.js によるグラフ描画 ---
+        const ctx = document.getElementById('mentalChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(255, 215, 0, 0.4)'); // 上部: Joy
+        gradient.addColorStop(1, 'rgba(255, 215, 0, 0.05)');
+
+        const mentalChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 30
+                    
