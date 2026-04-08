@@ -7,19 +7,41 @@
     <style>
         /* アニメーション設定 */
         @keyframes slideIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @keyframes flashEffect {
-            0% { background-color: #e3f2fd; }
-            50% { background-color: #ffffff; }
-            100% { background-color: #e3f2fd; }
+            0% {
+                background-color: #e3f2fd;
+            }
+
+            50% {
+                background-color: #ffffff;
+            }
+
+            100% {
+                background-color: #e3f2fd;
+            }
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
         }
 
         /* 全体デザイン */
@@ -48,7 +70,8 @@
         /* タイトルバナー */
         h2 {
             text-align: center;
-            background-color: #007bff; /* Findyブルーをイメージ */
+            background-color: #007bff;
+            /* Findyブルーをイメージ */
             color: #ffffff !important;
             padding: 15px;
             border-radius: 12px;
@@ -68,7 +91,7 @@
             display: flex;
             align-items: center;
             border-left: 5px solid #007bff;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         #char-icon {
@@ -80,7 +103,8 @@
         #badge-area {
             font-size: 11px;
             font-weight: bold;
-            color: #ff007f; /* Findyのアクセントカラー風 */
+            color: #ff007f;
+            /* Findyのアクセントカラー風 */
             margin-bottom: 3px;
         }
 
@@ -92,7 +116,8 @@
         }
 
         /* 入力エリア */
-        input, textarea {
+        input,
+        textarea {
             width: 100%;
             margin-bottom: 15px;
             padding: 15px;
@@ -105,7 +130,8 @@
             transition: 0.3s;
         }
 
-        input:focus, textarea:focus {
+        input:focus,
+        textarea:focus {
             outline: none;
             border-color: #007bff;
             background-color: #ffffff;
@@ -116,7 +142,8 @@
         button {
             width: 100%;
             padding: 18px;
-            background-color: #28a745; /* 成功のグリーン */
+            background-color: #28a745;
+            /* 成功のグリーン */
             color: #ffffff !important;
             border: none;
             border-radius: 15px;
@@ -158,6 +185,45 @@
             z-index: 9999;
             pointer-events: none;
         }
+
+        /* 履歴をカード風にするデザイン */
+        .log-card {
+            margin-top: 24px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .card-header {
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+        }
+
+        .card-body {
+            padding: 20px;
+            min-height: 60px;
+        }
+
+        .card-footer {
+            padding: 10px 20px;
+            background: #fafafa;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            border-top: 1px dashed #eee;
+        }
+
+        .share-btn {
+            background: #007bff;
+            color: white !important;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -175,16 +241,17 @@
 
         <input type="text" id="place" placeholder="どこを歩いた？">
         <textarea id="memo" placeholder="その時、脳内では何を考えていた？" rows="3"></textarea>
-        
+
         <div style="margin-top: 10px; margin-bottom: 20px;">
             <label for="happiness" style="display: block; margin-bottom: 8px; font-weight: bold;">
                 😊 脳内幸福度: <span id="happyNum">50</span>%
             </label>
-            <input type="range" id="happiness" min="1" max="100" value="50" oninput="updateHappyNum(this.value)" style="width: 100%; cursor: pointer;">
+            <input type="range" id="happiness" min="1" max="100" value="50" oninput="updateHappyNum(this.value)"
+                style="width: 100%; cursor: pointer;">
         </div>
 
         <button onclick="addLog()">脳内データを記録する</button>
-        
+
         <div id="list"></div>
     </div>
 
@@ -195,7 +262,7 @@
         }
 
         // ページ読み込み時に前回の場所を表示
-        window.onload = function() {
+        window.onload = function () {
             const savedPlace = localStorage.getItem("LastPlace");
             if (savedPlace) {
                 const div = document.createElement("div");
@@ -204,7 +271,7 @@
                 div.style.border = "2px solid #007bff";
                 div.innerHTML = `<span class="log-date">前回の同期データ</span><strong>📍 ${savedPlace}</strong>`;
                 document.getElementById("list").prepend(div);
-                
+
                 // バッジを少し昇進させる
                 document.getElementById('badge-area').innerText = "【脳内スキャン・エンジニア】";
             }
@@ -275,7 +342,7 @@
             confetti.style.top = "100vh";
             confetti.style.fontSize = Math.random() * 20 + 10 + "px";
             confetti.style.transition = "transform 2s ease-out, opacity 2s";
-            
+
             document.body.appendChild(confetti);
 
             setTimeout(() => {
