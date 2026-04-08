@@ -76,7 +76,6 @@
             font-weight: 900;
             margin-top: 0;
             margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
         }
 
         #brain-advisor {
@@ -120,7 +119,6 @@
             border-radius: 12px;
             background: #fdfdfd;
             font-size: 16px;
-            color: #000000;
         }
 
         button {
@@ -133,7 +131,6 @@
             cursor: pointer;
             font-size: 18px;
             font-weight: 900;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
 
         /* カード風履歴のデザイン */
@@ -151,7 +148,6 @@
             display: flex;
             justify-content: space-between;
             font-weight: bold;
-            color: #000;
         }
 
         .card-body {
@@ -213,10 +209,12 @@
     </div>
 
     <script>
+        // 数値の更新
         function updateHappyNum(val) {
             document.getElementById("happyNum").innerText = val;
         }
 
+        // 初期表示
         window.onload = function () {
             const savedPlace = localStorage.getItem("LastPlace");
             if (savedPlace) {
@@ -224,6 +222,7 @@
             }
         };
 
+        // メイン機能
         function addLog() {
             const p = document.getElementById('place').value;
             const m = document.getElementById('memo').value;
@@ -231,9 +230,11 @@
 
             if (!p) return alert("場所を入力してください");
 
-            // 演出
+            // 演出：光
             document.body.classList.add("flash");
             setTimeout(() => document.body.classList.remove("flash"), 300);
+
+            // 演出：紙吹雪
             for (let i = 0; i < 15; i++) {
                 createConfetti();
             }
@@ -249,10 +250,8 @@
 
             localStorage.setItem("LastPlace", p);
 
-            // カードの色
+            // カード生成
             const color = (h >= 80) ? "#fff176" : (h >= 50) ? "#a5d6a7" : "#eeeeee";
-
-            // カードの生成
             const card = document.createElement('div');
             card.className = 'log-card';
             card.innerHTML = `
@@ -268,17 +267,16 @@
                     <div class="share-btn" onclick="shareContent('${p}', ${h}, '${m}')">脳内を共有</div>
                 </div>
             `;
-
             document.getElementById('list').prepend(card);
 
-            // 入力リセット
+            // リセット
             document.getElementById('place').value = "";
             document.getElementById('memo').value = "";
             document.getElementById('happiness').value = 50;
             document.getElementById('happyNum').innerText = 50;
-        }
+        } // ← addLogはここで終わり！
 
-        // 紙吹雪（addLogの外に出しました）
+        // 紙吹雪機能（独立した関数）
         function createConfetti() {
             const confetti = document.createElement('div');
             confetti.className = 'confetti';
@@ -295,6 +293,14 @@
             setTimeout(() => confetti.remove(), 2000);
         }
 
-        // 共有機能（addLogの外に出しました）
+        // 共有機能（独立した関数）
         function shareContent(place, score, memo) {
-            const text = `【さんぽ道マッピング】\n📍場所: ${place}\n😊幸福度: ${score}%\n🧠
+            const text = `【さんぽ道マッピング】\n📍場所: ${place}\n😊幸福度: ${score}%\n🧠思考: ${memo}\n#散歩脳 #脳内スキャン`;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("脳内データをコピーしました！");
+            });
+        }
+    </script>
+</body>
+
+</html>
