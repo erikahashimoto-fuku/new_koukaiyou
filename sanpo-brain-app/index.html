@@ -414,6 +414,7 @@
     </div>
 
     <script>
+        <script>
         // --- 1. タグの選択ロジック ---
         const tags = document.querySelectorAll('.tag');
         tags.forEach(tag => {
@@ -432,12 +433,83 @@
 
         // --- 3. Chart.js によるグラフ描画 ---
         const ctx = document.getElementById('mentalChart').getContext('2d');
-        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(0, 'rgba(255, 215, 0, 0.4)'); // 上部: Joy
-        gradient.addColorStop(1, 'rgba(255, 215, 0, 0.05)');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+        gradient.addColorStop(0, 'rgba(65, 105, 225, 0.3)');
+        gradient.addColorStop(1, 'rgba(65, 105, 225, 0)');
 
         const mentalChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: Array.from({length: 30
-                    
+                labels: Array.from({length: 30}, (_, i) => i + 1),
+                datasets: [{
+                    label: '幸福度',
+                    data: Array.from({length: 30}, () => Math.floor(Math.random() * 40) + 50),
+                    borderColor: '#4169E1',
+                    backgroundColor: gradient,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, max: 100, ticks: { stepSize: 20 } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // --- 4. ぽわぽわ演出（パーティクル生成）の追加 ---
+        const createParticle = () => {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            
+            // ランダムな色（タグの色から選択）
+            const colors = ['#FFD700', '#3CB371', '#4169E1', '#9370DB'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            // ランダムなサイズと位置
+            const size = Math.random() * 20 + 10 + 'px';
+            particle.style.width = size;
+            particle.style.height = size;
+            particle.style.backgroundColor = color;
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.top = Math.random() * 100 + 'vh';
+            
+            document.body.appendChild(particle);
+
+            // アニメーション開始
+            setTimeout(() => {
+                particle.classList.add('active');
+            }, 10);
+
+            // 5秒後に消去
+            setTimeout(() => {
+                particle.remove();
+            }, 5000);
+        };
+
+        // 記録ボタンクリック時の挙動
+        document.getElementById('recordBtn').addEventListener('click', () => {
+            // 20個のパーティクルを生成
+            for (let i = 0; i < 20; i++) {
+                setTimeout(createParticle, i * 50);
+            }
+            
+            // 簡易的なフィードバック
+            const btn = document.getElementById('recordBtn');
+            const originalText = btn.textContent;
+            btn.textContent = '記録完了！';
+            btn.style.backgroundColor = '#2196F3';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.backgroundColor = '#4CAF50';
+            }, 2000);
+        });
+    </script>
+    
+       
